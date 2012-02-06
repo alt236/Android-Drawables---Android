@@ -1,8 +1,5 @@
 package aws.apps.androidDrawables.util;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,13 +11,19 @@ import android.content.pm.PackageInfo;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.ui.MyAlertBox;
 
 public class UsefulBits {
+	/**
+	 * Gets the software version and version name for this application
+	 */
+	public enum SOFTWARE_INFO{
+		NAME, VERSION, NOTES, CHANGELOG, COPYRIGHT, ACKNOWLEDGEMENTS
+	}
 	final String TAG =  this.getClass().getName();
+
 	private Context c;
 
 	public UsefulBits(Context cntx) {
@@ -28,45 +31,48 @@ public class UsefulBits {
 		c = cntx;
 	}
 
-	public void ShowAlert(String title, String text, String button){
-		if (button.equals("")){button = c.getString(android.R.string.ok);}
-
-		try{
-			AlertDialog.Builder ad = new AlertDialog.Builder(c);
-			ad.setTitle( title );
-			ad.setMessage(text);
-
-			ad.setPositiveButton( button, null );
-			ad.show();
-		}catch (Exception e){
-			Log.e(TAG, "^ ShowAlert() Error: ", e);
-		}	
+	public Calendar convertMillisToDate(long millis){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(millis);
+		return calendar;
 	}
 
-	public boolean isOnline() {
-		try{ 
-			ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-			
-			if (cm != null) {
-				Log.d(TAG, "^ isOnline()=true");
-				return cm.getActiveNetworkInfo().isConnected();
-			} else {
-				Log.d(TAG, "^ isOnline()=false");
-				return false;
-			}
-					
-			}catch(Exception e){
-				Log.e(TAG, "^ isOnline()=false", e);
-				return false;
-			}
-	}
+//	public boolean createDirectories(String dirs){
+//		Log.d(TAG, "^ createDirectories - Attempting to create: " + dirs);
+//		try{
+//
+//			if (new File(dirs).exists()){
+//				Log.d(TAG, "^ createDirectories - Directory already exist:" + dirs);
+//				return true;
+//			}
+//
+//			// create a File object for the parent directory
+//			File newDirectories = new File(dirs);
+//			// have the object build the directory structure, if needed.
+//			if(newDirectories.mkdirs()){
+//				showToast("Directories created: " + dirs, 
+//						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//				Log.d(TAG, "^ createDirectories - Directory created:" + dirs);
+//				return true;					
+//			} else {
+//				showToast("Could not create: " + dirs, 
+//						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//				Log.e(TAG, "^ createDirectories - Could not create:" + dirs);
+//				return false;
+//			}
+//
+//		}catch (Exception e){//Catch exception if any
+//			showToast("Could not create: " + dirs, 
+//					Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//			Log.e(TAG, "^ createDirectories - something went wrong (" + dirs + ") " + e.getMessage());	
+//			return false;
+//		}
+//	}
 
-	/**
-	 * Gets the software version and version name for this application
-	 */
-	public enum SOFTWARE_INFO{
-		NAME, VERSION, NOTES, CHANGELOG, COPYRIGHT, ACKNOWLEDGEMENTS
-	}
+	public String formatDateTime(String formatString, Date d){
+		Format formatter = new SimpleDateFormat(formatString);
+		return formatter.format(d);
+	} 
 
 	public String getSoftwareInfo(SOFTWARE_INFO info) {
 		try {
@@ -104,85 +110,54 @@ public class UsefulBits {
 			Log.e(TAG, "^ Error @ getSoftwareInfo(" + info.name() + ") ", e);
 			return "";
 		}
-	} 
-
-	public String formatDateTime(String formatString, Date d){
-		Format formatter = new SimpleDateFormat(formatString);
-		return formatter.format(d);
 	}
 
-	public Calendar convertMillisToDate(long millis){
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(millis);
-		return calendar;
-	}
-
-	public void saveToFile(String fileName, File directory, String contents){
-
-		if (android.os.Environment.getExternalStorageState().equals(
-				android.os.Environment.MEDIA_MOUNTED)){
-			try {
-
-				if (directory.canWrite()){
-					File gpxfile = new File(directory, fileName);
-					FileWriter gpxwriter = new FileWriter(gpxfile);
-					BufferedWriter out = new BufferedWriter(gpxwriter);
-					out.write(contents);
-					out.close();
-					showToast("Saved to SD as '" + directory.getAbsolutePath() + "/" + fileName + "'", 
-							Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-				}
-
-			} catch (Exception e) {
-				showToast("Could not write file:\n+ e.getMessage()", 
-						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-				Log.e(TAG, "^ Could not write file " + e.getMessage());
-			}
-
-		}else{
-			showToast("No SD card is mounted...", Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-			Log.e(TAG, "^ No SD card is mounted.");		
-		}
-	}
-
-	public void showToast(String message, int duration, int location, int x_offset, int y_offset){
-		Toast toast = Toast.makeText(c.getApplicationContext(), message, duration);
-		toast.setGravity(location,x_offset,y_offset);
-		toast.show();
-	}
-
-	public boolean createDirectories(String dirs){
-		Log.d(TAG, "^ createDirectories - Attempting to create: " + dirs);
-		try{
-
-			if (new File(dirs).exists()){
-				Log.d(TAG, "^ createDirectories - Directory already exist:" + dirs);
-				return true;
-			}
-
-			// create a File object for the parent directory
-			File newDirectories = new File(dirs);
-			// have the object build the directory structure, if needed.
-			if(newDirectories.mkdirs()){
-				showToast("Directories created: " + dirs, 
-						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-				Log.d(TAG, "^ createDirectories - Directory created:" + dirs);
-				return true;					
+	public boolean isOnline() {
+		try{ 
+			ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+			
+			if (cm != null) {
+				Log.d(TAG, "^ isOnline()=true");
+				return cm.getActiveNetworkInfo().isConnected();
 			} else {
-				showToast("Could not create: " + dirs, 
-						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-				Log.e(TAG, "^ createDirectories - Could not create:" + dirs);
+				Log.d(TAG, "^ isOnline()=false");
 				return false;
 			}
-
-		}catch (Exception e){//Catch exception if any
-			showToast("Could not create: " + dirs, 
-					Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-			Log.e(TAG, "^ createDirectories - something went wrong (" + dirs + ") " + e.getMessage());	
-			return false;
-		}
+					
+			}catch(Exception e){
+				Log.e(TAG, "^ isOnline()=false", e);
+				return false;
+			}
 	}
-	
+
+//	public void saveToFile(String fileName, File directory, String contents){
+//
+//		if (android.os.Environment.getExternalStorageState().equals(
+//				android.os.Environment.MEDIA_MOUNTED)){
+//			try {
+//
+//				if (directory.canWrite()){
+//					File gpxfile = new File(directory, fileName);
+//					FileWriter gpxwriter = new FileWriter(gpxfile);
+//					BufferedWriter out = new BufferedWriter(gpxwriter);
+//					out.write(contents);
+//					out.close();
+//					showToast("Saved to SD as '" + directory.getAbsolutePath() + "/" + fileName + "'", 
+//							Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//				}
+//
+//			} catch (Exception e) {
+//				showToast("Could not write file:\n+ e.getMessage()", 
+//						Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//				Log.e(TAG, "^ Could not write file " + e.getMessage());
+//			}
+//
+//		}else{
+//			showToast("No SD card is mounted...", Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+//			Log.e(TAG, "^ No SD card is mounted.");		
+//		}
+//	}
+
 	public void showAboutDialogue(){
 		String text = "";
 		String title = "";
@@ -202,5 +177,26 @@ public class UsefulBits {
 		} else {
 			Log.d(TAG, "^ context is null...");
 		}
+	}
+
+	public void ShowAlert(String title, String text, String button){
+		if (button.equals("")){button = c.getString(android.R.string.ok);}
+
+		try{
+			AlertDialog.Builder ad = new AlertDialog.Builder(c);
+			ad.setTitle( title );
+			ad.setMessage(text);
+
+			ad.setPositiveButton( button, null );
+			ad.show();
+		}catch (Exception e){
+			Log.e(TAG, "^ ShowAlert() Error: ", e);
+		}	
+	}
+	
+	public void showToast(String message, int duration, int location, int x_offset, int y_offset){
+		Toast toast = Toast.makeText(c.getApplicationContext(), message, duration);
+		toast.setGravity(location,x_offset,y_offset);
+		toast.show();
 	}
 }
