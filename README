@@ -1,0 +1,32 @@
+Description
+
+	This application will list all resources in "android.R.drawable" for the current device.
+
+	You can then change the background colour of the list to see how each image looks on a different colour.
+
+	Probably only useful to developers :)
+
+	No ads.
+
+Changelog
+
+	·v0.0.1: First public release.\n
+	·v0.0.2: Changed icon, minor bugfixes, added copy functionality.
+	·v0.0.3: Code cleanup, now compiles against v14.
+
+Permission Explanation
+
+	None needed.
+
+Acknowledgements
+
+	Original icon by OCAL (http://www.clker.com/clipart-style-paintbrush.html).
+    All logos are the property of their respective owners
+
+Licence
+	Licensed under the Apache Licence 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+	
+Links
+	Market link	: https://market.android.com/details?id=aws.apps.androidDrawables
+	Webpage:	: http://aschillings.co.uk/html/android_drawables.html
+	Github:		: https://github.com/alt236/Android-Drawables---Android
