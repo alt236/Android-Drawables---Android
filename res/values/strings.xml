@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">Android Drawables</string>
+    
+    <string name="app_acknowledgements">
+		Acknowledgements:\n
+		·Original icon by OCAL (http://www.clker.com/clipart-style-paintbrush.html).
+	</string>
+	
+	<string name="app_copyright">Copyright A. Schillings, 2010</string>
+	
+	<string name="app_changelog">
+		Changelog:\n
+		·v0.0.1: First public release.\n
+		·v0.0.2: Changed icon, minor bugfixes, added copy functionality.
+		·v0.0.3: Code cleanup, now compiles against v14.
+	</string>
+
+	<string name="app_notes">
+		Notes:\n
+		Nothing of note!
+	</string>
+	
+	<string name="label_menu_about">About</string>
+	<string name="label_menu_theme_dark">Dark Theme</string>
+	<string name="label_menu_theme_light">Light Theme</string>
+	
+    <string name="main_title">Android Drawables</string>
+    <string name="os">OS:</string>
+    <string name="drawables">Drawables:</string>
+    
+    <string name="ok">OK</string>
+    <string name="text_copied">copied.</string>
+    	
+    <string name="white">White</string>
+    <string name="black">Black</string>
+    <string name="green">Green</string>
+    <string name="orange">Orange</string>
+    <string name="gray">Gray</string>
+    <string name="could_not_extract_drawables">Could not extract drawables</string>
+</resources>

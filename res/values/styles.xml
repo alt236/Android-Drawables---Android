@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="default_button" parent="@android:style/TextAppearance.Medium">
+    	<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">fill_parent</item>
+		<item name="android:layout_weight">50</item>
+   	 </style>
+    
+     <style name="black_button" parent="@style/default_button">
+     	<item name="android:text">@string/black</item>
+     	<item name="android:textColor">@color/gray</item>
+     	<item name="android:background">@color/black</item>
+     	<item name="android:tag">@color/black</item>
+     </style>
+     
+     <style name="white_button" parent="@style/default_button">
+     	<item name="android:text">@string/white</item>
+     	<item name="android:textColor">@color/gray</item>
+     	<item name="android:background">@color/white</item>
+     	<item name="android:tag">@color/white</item>
+     </style>
+    
+     <style name="green_button" parent="@style/default_button">
+     	<item name="android:text">@string/green</item>
+     	<item name="android:background">@color/green</item>
+     	<item name="android:tag">@color/green</item>
+     </style>
+    
+     <style name="orange_button" parent="@style/default_button">
+     	<item name="android:text">@string/orange</item>
+     	<item name="android:background">@color/orange</item>
+     	<item name="android:tag">@color/orange</item>
+     </style>
+     
+     <style name="gray_button" parent="@style/default_button">
+     	<item name="android:text">@string/gray</item>
+     	<item name="android:background">@color/gray</item>
+     	<item name="android:tag">@color/gray</item>
+     </style>
+     
+    <style name="title_field" parent="@android:style/TextAppearance.Small">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <style name="data_field" parent="@android:style/TextAppearance.Small">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="DefaultTableLayoutStyle">
+    	<item name="android:layout_width">fill_parent</item>
+    	<item name="android:layout_height">fill_parent</item>
+    	<item name="android:stretchColumns">*</item>
+    </style>           
+</resources>
