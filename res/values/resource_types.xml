@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <array name="resource_types">
+    	<item>@string/android_r_drawable</item>
+    	<item>@string/android_r_color</item>
+    	<item>@string/android_r_string</item>
+    </array>
+
+	<string name="android_r_drawable">android.R.drawable</string>
+	<string name="android_r_color">android.R.color</string>
+	<string name="android_r_string">android.R.string</string>	
+</resources>

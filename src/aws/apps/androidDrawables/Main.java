@@ -1,14 +1,8 @@
 package aws.apps.androidDrawables;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Hashtable;
 
-import android.R.drawable;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -21,9 +15,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R.color;
@@ -41,10 +38,6 @@ enum MENU_BUTTONS {
 
 public class Main extends Activity {
 	private final String TAG =  this.getClass().getName();
-	private static final int LIST_DRAWABLES = 0;
-	private static final int LIST_STRINGS = 1;
-	
-
 
 	private UsefulBits uB;
 	private ListView myList;
@@ -55,9 +48,13 @@ public class Main extends Activity {
 	private Button btnGray;
 	private TextView tvTitleItems;
 	private TextView tvValueItems;
-	private TextView tvOS;
+	private TextView tvOS; 
+	private LinearLayout buttonLayout;
+	private Spinner spinner;
 	private MyReflection myReflection;
 	private int currentBgColour;
+
+	private final Hashtable<CharSequence, Integer> ressourceString2Id = new Hashtable<CharSequence, Integer>();
 
 	private View.OnClickListener colorButtonListener;
 
@@ -83,18 +80,12 @@ public class Main extends Activity {
 			myList.setBackgroundColor(currentBgColour);
 		}
 
-		tvOS = (TextView) findViewById(R.id.tvOS);
-		tvOS.setText(Build.VERSION.RELEASE);
-		
-		tvTitleItems = (TextView) findViewById(R.id.titleItems);
-		tvValueItems = (TextView) findViewById(R.id.valueItems);
-		
-		btnBlack = (Button) findViewById(R.id.main_black);
-		btnWhite = (Button) findViewById(R.id.main_white);
-		btnGreen = (Button) findViewById(R.id.main_green);
-		btnOrange = (Button) findViewById(R.id.main_orange);
-		btnGray = (Button) findViewById(R.id.main_gray);
+		buildUi();
 
+		ressourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
+		ressourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
+		ressourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
+		
 		colorButtonListener =  new View.OnClickListener() {
 			public void onClick(View v) {
 				Button b = (Button) v;
@@ -111,33 +102,84 @@ public class Main extends Activity {
 				listOnClick(v, pos, id);
 			}
 		});
-		
+
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+				populateList(ressourceString2Id.get(parent.getItemAtPosition(pos).toString()));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				//
+			}   	
+		});
+
 		btnBlack.setOnClickListener(colorButtonListener);
 		btnWhite.setOnClickListener(colorButtonListener);
 		btnGreen.setOnClickListener(colorButtonListener);
 		btnOrange.setOnClickListener(colorButtonListener);
 		btnGray.setOnClickListener(colorButtonListener);
-		
+
 		myReflection = new MyReflection(myList, this);
-		
+
 		myList.setFastScrollEnabled(true);
-		
-		populateList(LIST_DRAWABLES);
+
+		tvOS.setText(Build.VERSION.RELEASE);
+		//populateList(R.string.android_r_drawable);
 	}
 
-	private void populateList(int listType) {
+	private void buildUi(){
+		tvOS = (TextView) findViewById(R.id.tvOS);
+
+		tvTitleItems = (TextView) findViewById(R.id.titleItems);
+		tvValueItems = (TextView) findViewById(R.id.valueItems);
+
+		btnBlack = (Button) findViewById(R.id.main_black);
+		btnWhite = (Button) findViewById(R.id.main_white);
+		btnGreen = (Button) findViewById(R.id.main_green);
+		btnOrange = (Button) findViewById(R.id.main_orange);
+		btnGray = (Button) findViewById(R.id.main_gray);
+
+		spinner = (Spinner) findViewById(R.id.spinner);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this, R.array.resource_types, 
+				android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+
+		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
+	}
+
+	private void populateList(long listType) {
 		int res = 0;
-		switch(listType){
-		case LIST_DRAWABLES:
+
+		myList.setAdapter(null);
+
+		if(R.string.android_r_drawable == listType){
+			Log.i(TAG, "^ Populating list with drawables");
+			tvTitleItems.setText(R.string.label_drawables);
+			buttonLayout.setVisibility(View.VISIBLE);
 			res = myReflection.getDrawables();
-			tvTitleItems.setText(R.string.drawables);
-			break;
-		case LIST_STRINGS:
-			res = myReflection.getStrings();
-			tvTitleItems.setText(R.string.strings);
-			break;
 		}
-		
+		else if(R.string.android_r_color == listType){
+			Log.i(TAG, "^ Populating list with colours");
+			tvTitleItems.setText(R.string.label_colours);
+			buttonLayout.setVisibility(View.VISIBLE);
+			res = myReflection.getColors();
+		}
+		else if(R.string.android_r_string == listType){
+			Log.i(TAG, "^ Populating list with strings");
+			tvTitleItems.setText(R.string.label_strings);
+			btnWhite.performClick();
+			buttonLayout.setVisibility(View.GONE);
+			res = myReflection.getStrings();
+		} else {
+			Log.w(TAG, "^ NOT populating. Unknown type");
+			tvTitleItems.setText(R.string.label_unknown);
+			buttonLayout.setVisibility(View.GONE);
+		}
+
 		tvValueItems.setText(String.valueOf(res));
 	}
 

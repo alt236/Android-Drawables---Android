@@ -17,9 +17,6 @@ import aws.apps.androidDrawables.R;
 
 public class MyReflection {
 	private final String TAG =  this.getClass().getName();
-	public static final String CLASS_ANDROID_R_DRAWABLE = "android.R.drawable";
-	public static final String CLASS_ANDROID_R_STRING = "android.R.string";
-
 	private ListView myList;
 	private Context context;
 
@@ -31,14 +28,16 @@ public class MyReflection {
 
 	@SuppressWarnings("unchecked")
 	public int getStrings(){
+		String type = context.getString(R.string.android_r_string);
 		Class <android.R.drawable> rDrawable = null;
+		
 		try {
 			Class<?> rClass = Class.forName("android.R");
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
 			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
 			for (Class<?> subclass : subClassTable) {
-				if (CLASS_ANDROID_R_STRING.equals(subclass.getCanonicalName())) {
+				if (type.equals(subclass.getCanonicalName())) {
 					rDrawable = (Class<drawable>) subclass;
 					Field[] drawables = rDrawable.getFields();
 
@@ -46,7 +45,7 @@ public class MyReflection {
 						Map<String, Object> map = new HashMap<String, Object>();
 						map.put("image", dr.getInt(null));
 						map.put("name", dr.getName());
-						map.put("type", CLASS_ANDROID_R_DRAWABLE);
+						map.put("type", type);
 						drInfo.add(map);
 					}
 					break; // we are not interested in anything else atm.
@@ -69,15 +68,17 @@ public class MyReflection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getDrawables(){
+	public int getColors(){
+		String type = context.getString(R.string.android_r_color);
 		Class <android.R.drawable> rDrawable = null;
+		
 		try {
 			Class<?> rClass = Class.forName("android.R");
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
 			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
 			for (Class<?> subclass : subClassTable) {
-				if (CLASS_ANDROID_R_DRAWABLE.equals(subclass.getCanonicalName())) {
+				if (type.equals(subclass.getCanonicalName())) {
 					rDrawable = (Class<drawable>) subclass;
 					Field[] drawables = rDrawable.getFields();
 
@@ -85,7 +86,48 @@ public class MyReflection {
 						Map<String, Object> map = new HashMap<String, Object>();
 						map.put("image", dr.getInt(null));
 						map.put("name", dr.getName());
-						map.put("type", CLASS_ANDROID_R_DRAWABLE);
+						map.put("type", type);
+						drInfo.add(map);
+					}
+					break; // we are not interested in anything else atm.
+				} 
+			}
+			sortList(drInfo);
+			myList.setAdapter(new SimpleAdapter(
+					context, drInfo, R.layout.listitem,
+					new String[] { "image", "name", "type"}, 
+					new int[] { R.id.icon, R.id.name, R.id.type }));
+
+		} catch (Exception e) {
+			Log.e(TAG, "^ Error: " + e.getMessage());
+		}
+		if(rDrawable != null){
+			return rDrawable.getFields().length;
+		}else{
+			return 0;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int getDrawables(){
+		String type = context.getString(R.string.android_r_drawable);
+		Class <android.R.drawable> rDrawable = null;
+		
+		try {
+			Class<?> rClass = Class.forName("android.R");
+			Class<?>[] subClassTable = rClass.getDeclaredClasses();
+			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+
+			for (Class<?> subclass : subClassTable) {
+				if (type.equals(subclass.getCanonicalName())) {
+					rDrawable = (Class<drawable>) subclass;
+					Field[] drawables = rDrawable.getFields();
+
+					for (Field dr : drawables) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("image", dr.getInt(null));
+						map.put("name", dr.getName());
+						map.put("type", type);
 						drInfo.add(map);
 					}
 					break; // we are not interested in anything else atm.

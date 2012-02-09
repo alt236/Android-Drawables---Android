@@ -3,6 +3,30 @@
 	android:orientation="vertical" 
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingRight="5dip"
+            android:text="@string/list"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_toRightOf="@+id/tvSelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 
 	<TableLayout 
 			android:id="@+id/main_drawable_info" 
@@ -10,7 +34,6 @@
 			<TableRow> 
 				<TextView 
 					style="@style/title_field"
-					android:text="@string/drawables"
 					android:id="@+id/titleItems"/>
 				<TextView 
 					style="@style/data_field"
@@ -28,7 +51,6 @@
           android:orientation="horizontal"
           android:layout_width="fill_parent"
           android:layout_height="50dip"
-          android:layout_alignParentBottom="true"
           >
 			<Button
                android:id="@+id/main_white"
@@ -63,6 +85,6 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical|center_horizontal"
 			android:textSize="20sp" 
-			android:text="@string/could_not_extract_drawables" />
+			android:text="@string/could_not_extract_resources" />
 	</LinearLayout>
 </LinearLayout>
