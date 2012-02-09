@@ -10,10 +10,11 @@
 			<TableRow> 
 				<TextView 
 					style="@style/title_field"
-					android:text="@string/drawables" />
+					android:text="@string/drawables"
+					android:id="@+id/titleItems"/>
 				<TextView 
 					style="@style/data_field"
-					android:id="@+id/tvDrawables"/>
+					android:id="@+id/valueItems"/>
 				<TextView 
 					style="@style/title_field"
 					android:text="@string/os" />

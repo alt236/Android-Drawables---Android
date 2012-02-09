@@ -2,6 +2,8 @@ package aws.apps.androidDrawables;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R.color;
+import aws.apps.androidDrawables.reflection.MyReflection;
 import aws.apps.androidDrawables.util.UsefulBits;
 
 @SuppressWarnings("deprecation")
@@ -37,8 +40,10 @@ enum MENU_BUTTONS {
 }
 
 public class Main extends Activity {
-	final String TAG =  this.getClass().getName();
-	private static final String CLASS_ANDROID_R_DRAWABLE = "android.R.drawable";
+	private final String TAG =  this.getClass().getName();
+	private static final int LIST_DRAWABLES = 0;
+	private static final int LIST_STRINGS = 1;
+	
 
 
 	private UsefulBits uB;
@@ -48,8 +53,10 @@ public class Main extends Activity {
 	private Button btnGreen;
 	private Button btnOrange;
 	private Button btnGray;
-	private TextView tvDrawables;
+	private TextView tvTitleItems;
+	private TextView tvValueItems;
 	private TextView tvOS;
+	private MyReflection myReflection;
 	private int currentBgColour;
 
 	private View.OnClickListener colorButtonListener;
@@ -77,8 +84,11 @@ public class Main extends Activity {
 		}
 
 		tvOS = (TextView) findViewById(R.id.tvOS);
-		tvDrawables = (TextView) findViewById(R.id.tvDrawables);
-
+		tvOS.setText(Build.VERSION.RELEASE);
+		
+		tvTitleItems = (TextView) findViewById(R.id.titleItems);
+		tvValueItems = (TextView) findViewById(R.id.valueItems);
+		
 		btnBlack = (Button) findViewById(R.id.main_black);
 		btnWhite = (Button) findViewById(R.id.main_white);
 		btnGreen = (Button) findViewById(R.id.main_green);
@@ -107,47 +117,29 @@ public class Main extends Activity {
 		btnGreen.setOnClickListener(colorButtonListener);
 		btnOrange.setOnClickListener(colorButtonListener);
 		btnGray.setOnClickListener(colorButtonListener);
-
-		populateList();
+		
+		myReflection = new MyReflection(myList, this);
+		
+		myList.setFastScrollEnabled(true);
+		
+		populateList(LIST_DRAWABLES);
 	}
 
-	@SuppressWarnings("unchecked")
-	private void populateList(){
-		try {
-			Class <android.R.drawable> rDrawable = null;
-			Class<?> rClass = Class.forName("android.R");
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
-
-			for (Class<?> subclass : subClassTable) {
-				if (CLASS_ANDROID_R_DRAWABLE.equals(subclass.getCanonicalName())) {
-					rDrawable = (Class<drawable>) subclass;
-					Field[] drawables = rDrawable.getFields();
-
-					for (Field dr : drawables) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("image", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", CLASS_ANDROID_R_DRAWABLE);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				} else {
-					Log.d(TAG, "^ Skipping: " + subclass.getCanonicalName());
-				}
-			}
-
-			myList.setAdapter(new SimpleAdapter(this, drInfo, R.layout.listitem,
-					new String[] { "image", "name", "type"}, 
-					new int[] { R.id.icon, R.id.name, R.id.type }));
-
-			tvDrawables.setText(rDrawable.getFields().length+"");
-			tvOS.setText(Build.VERSION.RELEASE);
-		} catch (Exception e) {
-			Log.e(TAG, "^ Error: " + e.getMessage());
+	private void populateList(int listType) {
+		int res = 0;
+		switch(listType){
+		case LIST_DRAWABLES:
+			res = myReflection.getDrawables();
+			tvTitleItems.setText(R.string.drawables);
+			break;
+		case LIST_STRINGS:
+			res = myReflection.getStrings();
+			tvTitleItems.setText(R.string.strings);
+			break;
 		}
+		
+		tvValueItems.setText(String.valueOf(res));
 	}
-
 
 	/** Creates the menu items */
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -165,8 +157,6 @@ public class Main extends Activity {
 		}
 		return false;
 	}
-
-
 
 
 	@Override
@@ -193,6 +183,4 @@ public class Main extends Activity {
 			Log.e(TAG, "^ listOnClick error: " + e.getMessage());
 		}
 	}
-
-
 }

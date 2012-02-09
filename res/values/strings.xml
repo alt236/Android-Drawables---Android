@@ -13,8 +13,9 @@
 	<string name="app_changelog">
 		Changelog:\n
 		·v0.0.1: First public release.\n
-		·v0.0.2: Changed icon, minor bugfixes, added copy functionality.
-		·v0.0.3: Code cleanup, now compiles against v14.
+		·v0.0.2: Changed icon, minor bugfixes, added copy functionality.\n
+		·v0.0.3: Code cleanup, now compiles against v14.\n
+		·v0.0.4: Added other resource types.
 	</string>
 
 	<string name="app_notes">
@@ -39,4 +40,5 @@
     <string name="orange">Orange</string>
     <string name="gray">Gray</string>
     <string name="could_not_extract_drawables">Could not extract drawables</string>
+    <string name="strings">Strings</string>
 </resources>
