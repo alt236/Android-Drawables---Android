@@ -14,7 +14,8 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import aws.apps.androidDrawables.R;
-import aws.apps.androidDrawables.adapters.ColourResoureAdaptor;
+import aws.apps.androidDrawables.adapters.ColourResourceAdaptor;
+import aws.apps.androidDrawables.adapters.StringResourceAdaptor;
 
 public class MyReflection {
 	private final String TAG =  this.getClass().getName();
@@ -54,7 +55,7 @@ public class MyReflection {
 			}
 			sortList(drInfo);
 			myList.setAdapter(
-					new ColourResoureAdaptor(context, R.layout.listitem, drInfo));
+					new ColourResourceAdaptor(context, R.layout.listitem_with_image, drInfo));
 
 		} catch (Exception e) {
 			Log.e(TAG, "^ Error: " + e.getMessage());
@@ -92,8 +93,9 @@ public class MyReflection {
 				} 
 			}
 			sortList(drInfo);
+
 			myList.setAdapter(new SimpleAdapter(
-					context, drInfo, R.layout.listitem,
+					context, drInfo, R.layout.listitem_with_image,
 					new String[] { "image", "name", "type"}, 
 					new int[] { R.id.icon, R.id.string1, R.id.string2 }));
 
@@ -124,7 +126,7 @@ public class MyReflection {
 
 					for (Field dr : strings) {
 						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("image", dr.getInt(null));
+						map.put("id", dr.getInt(null));
 						map.put("name", dr.getName());
 						map.put("type", type);
 						drInfo.add(map);
@@ -133,11 +135,9 @@ public class MyReflection {
 				} 
 			}
 			sortList(drInfo);
-			myList.setAdapter(new SimpleAdapter(
-					context, drInfo, R.layout.listitem,
-					new String[] { "image", "name", "type"}, 
-					new int[] { R.id.icon, R.id.string1, R.id.string2 }));
 
+			myList.setAdapter(
+					new StringResourceAdaptor(context, R.layout.listitem, drInfo));
 		} catch (Exception e) {
 			Log.e(TAG, "^ Error: " + e.getMessage());
 		}

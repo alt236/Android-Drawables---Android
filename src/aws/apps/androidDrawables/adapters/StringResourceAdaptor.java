@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
 
-public class ColourResoureAdaptor extends ArrayAdapter<Map<String, Object>> {
+public class StringResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
 	private final List<Map<String, Object>> items;
 	private final Context context;
 
-	public ColourResoureAdaptor(Context context, int textViewResourceId, List<Map<String, Object>> items) {
+	public StringResourceAdaptor(Context context, int textViewResourceId, List<Map<String, Object>> items) {
 		super(context, textViewResourceId, items);
 		
 		this.items = items;
@@ -33,13 +34,11 @@ public class ColourResoureAdaptor extends ArrayAdapter<Map<String, Object>> {
 
 		Map<String, Object> o = items.get(position);
 		if (o != null) {			
-			ImageView image = (ImageView)v.findViewById(R.id.icon);
 			TextView top = (TextView) v.findViewById(R.id.string1);
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
-			
-			image.setBackgroundColor(context.getResources().getColor((Integer) o.get("id")));
+
 			top.setText((String) o.get("name"));
-			bottom.setText((String) o.get("type"));
+			bottom.setText(context.getString((Integer) o.get("id")));
 		}
 		return v;
 	}
