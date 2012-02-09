@@ -39,7 +39,7 @@ public class ColourResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
 			int color= context.getResources().getColor((Integer) o.get("id"));
 			image.setBackgroundColor(color);
 			top.setText((String) o.get("name"));
-			bottom.setText("#" + Integer.toHexString(color));
+			bottom.setText("#" + Integer.toHexString(color).toUpperCase());
 		}
 		return v;
 	}

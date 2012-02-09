@@ -8,6 +8,7 @@ import java.util.Date;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.util.Log;
@@ -16,12 +17,6 @@ import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.ui.MyAlertBox;
 
 public class UsefulBits {
-	/**
-	 * Gets the software version and version name for this application
-	 */
-	public enum SOFTWARE_INFO{
-		NAME, VERSION, NOTES, CHANGELOG, COPYRIGHT, ACKNOWLEDGEMENTS
-	}
 	final String TAG =  this.getClass().getName();
 
 	private Context c;
@@ -74,43 +69,54 @@ public class UsefulBits {
 		return formatter.format(d);
 	} 
 
-	public String getSoftwareInfo(SOFTWARE_INFO info) {
+	public String getAppVersion(){
+		PackageInfo pi;
 		try {
-			PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-			Resources appR = c.getResources();
-			CharSequence txt;
-			// Store the software version code and version name somewhere..
-			switch(info){
-			case VERSION:
-				return pi.versionName;
-			case NAME:
-				txt = appR.getText(appR.getIdentifier("app_name", "string", c.getPackageName())); 
-				break;
-			case NOTES:
-				txt = appR.getText(appR.getIdentifier("app_notes", "string", c.getPackageName())); 
-				break;
-			case CHANGELOG:
-				txt = appR.getText(appR.getIdentifier("app_changelog", "string", c.getPackageName())); 
-				break;
-			case COPYRIGHT:
-				txt = appR.getText(appR.getIdentifier("app_copyright", "string", c.getPackageName())); 
-				break;
-			case ACKNOWLEDGEMENTS:
-				txt = appR.getText(appR.getIdentifier("app_acknowledgements", "string", c.getPackageName())); 
-				break;
-			default:
-				return "";
-			}
-			String res = txt.toString();
-			res = res.replaceAll("\\t", "");
-			res = res.replaceAll("\\n\\n", "\n");
-
-			return res.trim();
-		} catch (Exception e) {
-			Log.e(TAG, "^ Error @ getSoftwareInfo(" + info.name() + ") ", e);
+			pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
+			return pi.versionName;
+		} catch (NameNotFoundException e) {
 			return "";
 		}
+		
 	}
+	
+//	public String getSoftwareInfo(SOFTWARE_INFO info) {
+//		try {
+//			PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
+//			Resources appR = c.getResources();
+//			CharSequence txt;
+//			// Store the software version code and version name somewhere..
+//			switch(info){
+//			case VERSION:
+//				return pi.versionName;
+//			case NAME:
+//				txt = appR.getText(appR.getIdentifier("app_name", "string", c.getPackageName())); 
+//				break;
+//			case NOTES:
+//				txt = appR.getText(appR.getIdentifier("app_notes", "string", c.getPackageName())); 
+//				break;
+//			case CHANGELOG:
+//				txt = appR.getText(appR.getIdentifier("app_changelog", "string", c.getPackageName())); 
+//				break;
+//			case COPYRIGHT:
+//				txt = appR.getText(appR.getIdentifier("app_copyright", "string", c.getPackageName())); 
+//				break;
+//			case ACKNOWLEDGEMENTS:
+//				txt = appR.getText(appR.getIdentifier("app_acknowledgements", "string", c.getPackageName())); 
+//				break;
+//			default:
+//				return "";
+//			}
+//			String res = txt.toString();
+//			res = res.replaceAll("\\t", "");
+//			res = res.replaceAll("\\n\\n", "\n");
+//
+//			return res.trim();
+//		} catch (Exception e) {
+//			Log.e(TAG, "^ Error @ getSoftwareInfo(" + info.name() + ") ", e);
+//			return "";
+//		}
+//	}
 
 	public boolean isOnline() {
 		try{ 
@@ -159,21 +165,22 @@ public class UsefulBits {
 //	}
 
 	public void showAboutDialogue(){
-		String text = "";
-		String title = "";
+		String title = c.getString(R.string.app_name) + " v"+ getAppVersion();
+		
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(c.getString(R.string.app_changelog));
+		sb.append("\n\n");
+		sb.append(c.getString(R.string.app_notes));
+		sb.append("\n\n");
+		sb.append(c.getString(R.string.app_acknowledgements));
+		sb.append("\n\n");		
+		sb.append(c.getString(R.string.app_copyright));
+		
 
-		text += this.getSoftwareInfo(SOFTWARE_INFO.CHANGELOG);
-		text += "\n\n";
-		text += this.getSoftwareInfo(SOFTWARE_INFO.NOTES);
-		text += "\n\n";
-		text += this.getSoftwareInfo(SOFTWARE_INFO.ACKNOWLEDGEMENTS);
-		text += "\n\n";		
-		text += this.getSoftwareInfo(SOFTWARE_INFO.COPYRIGHT);
-		title = this.getSoftwareInfo(SOFTWARE_INFO.NAME) + " v"
-		+ this.getSoftwareInfo(SOFTWARE_INFO.VERSION);
 
 		if (!(c==null)){
-			MyAlertBox.create(c, text, title, c.getString(R.string.ok)).show();
+			MyAlertBox.create(c, sb.toString(), title, c.getString(R.string.ok)).show();
 		} else {
 			Log.d(TAG, "^ context is null...");
 		}

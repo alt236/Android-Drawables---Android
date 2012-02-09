@@ -24,8 +24,6 @@
 	</string>
 	
 	<string name="label_menu_about">About</string>
-	<string name="label_menu_theme_dark">Dark Theme</string>
-	<string name="label_menu_theme_light">Light Theme</string>
 	
     <string name="main_title">Android Drawables</string>
     <string name="os">OS:</string>
@@ -46,4 +44,5 @@
     <string name="label_strings">Strings:</string>
     <string name="label_unknown">Unknown</string>
     <string name="label_colours">Colours:</string>
+    <string name="image">image</string>
 </resources>
