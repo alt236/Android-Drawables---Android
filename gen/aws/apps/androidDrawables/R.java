@@ -35,13 +35,13 @@ public final class R {
         public static final int main_list=0x7f080010;
         public static final int main_orange=0x7f08000d;
         public static final int main_white=0x7f08000b;
-        public static final int name=0x7f080001;
         public static final int relativeLayout1=0x7f080003;
         public static final int spinner=0x7f080005;
+        public static final int string1=0x7f080001;
+        public static final int string2=0x7f080002;
         public static final int titleItems=0x7f080007;
         public static final int tvOS=0x7f080009;
         public static final int tvSelect=0x7f080004;
-        public static final int type=0x7f080002;
         public static final int valueItems=0x7f080008;
     }
     public static final class layout {
