@@ -19,30 +19,21 @@ import aws.apps.androidDrawables.adapters.StringResourceAdaptor;
 
 public class MyResourceReflection {
 	private final String TAG = this.getClass().getName();
-	public final static String TYPE_PUBLIC = "android.R";
-	public final static String TYPE_INTERNAL = "com.android.internal.R";
+//	public final static String TYPE_PUBLIC = "android.R";
+//	public final static String TYPE_INTERNAL = "com.android.internal.R";
 
 	private ListView myList;
 	private Context context;
-	private String baseClass = "";
 
-	private final static int SUB_COLOR = 0;
-	private final static int SUB_DRAWABLE = 1;
-	private final static int SUB_STRING = 2;
-
-	public MyResourceReflection(ListView myList, Context context,
-			String baseClass) {
+	public MyResourceReflection(ListView myList, Context context) {
 		super();
 		this.myList = myList;
 		this.context = context;
 
-		this.baseClass = baseClass;
-		logSubClasses();
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getResourceColors() {
-		String type = getType(baseClass, SUB_COLOR);
+	public int getResourceColors(String baseClass, String fullClass) {
 		Class<android.R.drawable> rColor = null;
 
 		try {
@@ -51,7 +42,7 @@ public class MyResourceReflection {
 			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
 			for (Class<?> subclass : subClassTable) {
-				if (type.equals(subclass.getCanonicalName())) {
+				if (fullClass.equals(subclass.getCanonicalName())) {
 					rColor = (Class<drawable>) subclass;
 					Field[] colors = rColor.getFields();
 
@@ -59,7 +50,7 @@ public class MyResourceReflection {
 						Map<String, Object> map = new HashMap<String, Object>();
 						map.put("id", dr.getInt(null));
 						map.put("name", dr.getName());
-						map.put("type", type);
+						map.put("type", fullClass);
 						drInfo.add(map);
 					}
 					break; // we are not interested in anything else atm.
@@ -80,8 +71,7 @@ public class MyResourceReflection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getResourceDrawables() {
-		String type = getType(baseClass, SUB_DRAWABLE);
+	public int getResourceDrawables(String baseClass, String fullClass) {
 		Class<android.R.drawable> rDrawable = null;
 
 		try {
@@ -90,7 +80,7 @@ public class MyResourceReflection {
 			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
 			for (Class<?> subclass : subClassTable) {
-				if (type.equals(subclass.getCanonicalName())) {
+				if (fullClass.equals(subclass.getCanonicalName())) {
 					rDrawable = (Class<drawable>) subclass;
 					Field[] drawables = rDrawable.getFields();
 
@@ -98,7 +88,7 @@ public class MyResourceReflection {
 						Map<String, Object> map = new HashMap<String, Object>();
 						map.put("image", dr.getInt(null));
 						map.put("name", dr.getName());
-						map.put("type", type);
+						map.put("type", fullClass);
 						drInfo.add(map);
 					}
 					break; // we are not interested in anything else atm.
@@ -122,8 +112,7 @@ public class MyResourceReflection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getResourceStrings() {
-		String type = getType(baseClass, SUB_STRING);
+	public int getResourceStrings(String baseClass, String fullClass) {
 		Class<android.R.drawable> rString = null;
 
 		try {
@@ -132,7 +121,7 @@ public class MyResourceReflection {
 			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
 			for (Class<?> subclass : subClassTable) {
-				if (type.equals(subclass.getCanonicalName())) {
+				if (fullClass.equals(subclass.getCanonicalName())) {
 					rString = (Class<drawable>) subclass;
 					Field[] strings = rString.getFields();
 
@@ -140,7 +129,7 @@ public class MyResourceReflection {
 						Map<String, Object> map = new HashMap<String, Object>();
 						map.put("id", dr.getInt(null));
 						map.put("name", dr.getName());
-						map.put("type", type);
+						map.put("type", fullClass);
 						drInfo.add(map);
 					}
 					break; // we are not interested in anything else atm.
@@ -159,31 +148,31 @@ public class MyResourceReflection {
 			return 0;
 		}
 	}
-	private String getType(String baseClass, int subClass) {
-		if (TYPE_INTERNAL.equals(baseClass)) {
-			switch (subClass) {
-			case SUB_COLOR:
-				return context.getString(R.string.com_android_internal_r_color);
-			case SUB_DRAWABLE:
-				return context
-						.getString(R.string.com_android_internal_r_drawable);
-			case SUB_STRING:
-				return context
-						.getString(R.string.com_android_internal_r_string);
-			}
-		} else if (TYPE_PUBLIC.equals(baseClass)) {
-			switch (subClass) {
-			case SUB_COLOR:
-				return context.getString(R.string.android_r_color);
-			case SUB_DRAWABLE:
-				return context.getString(R.string.android_r_drawable);
-			case SUB_STRING:
-				return context.getString(R.string.android_r_string);
-			}
-		}
-		return "";
-	}
-	public void logSubClasses() {
+//	private String getType(String baseClass, int subClass) {
+//		if (TYPE_INTERNAL.equals(baseClass)) {
+//			switch (subClass) {
+//			case SUB_COLOR:
+//				return context.getString(R.string.com_android_internal_r_color);
+//			case SUB_DRAWABLE:
+//				return context
+//						.getString(R.string.com_android_internal_r_drawable);
+//			case SUB_STRING:
+//				return context
+//						.getString(R.string.com_android_internal_r_string);
+//			}
+//		} else if (TYPE_PUBLIC.equals(baseClass)) {
+//			switch (subClass) {
+//			case SUB_COLOR:
+//				return context.getString(R.string.android_r_color);
+//			case SUB_DRAWABLE:
+//				return context.getString(R.string.android_r_drawable);
+//			case SUB_STRING:
+//				return context.getString(R.string.android_r_string);
+//			}
+//		}
+//		return "";
+//	}
+	public void logSubClasses(String baseClass) {
 		Log.i(TAG, "^ Listing subclasses for '" + baseClass + "'");
 
 		try {

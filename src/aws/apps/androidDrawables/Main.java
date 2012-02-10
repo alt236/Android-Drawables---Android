@@ -57,14 +57,13 @@ public class Main extends Activity {
 
 	private final Hashtable<CharSequence, Integer> resourceString2Id = new Hashtable<CharSequence, Integer>();
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
-	
+
 	private View.OnClickListener colorButtonListener;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
-		setTitle(getString(R.string.main_title));
 
 		uB = new UsefulBits(this);
 
@@ -83,17 +82,18 @@ public class Main extends Activity {
 
 		buildUi();
 
+		myReflection = new MyResourceReflection(myList, Main.this);
 		resourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
 		resourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
 		resourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
-		
+
 		resourceString2Id.put(getString(R.string.com_android_internal_r_color), R.string.com_android_internal_r_color);
 		resourceString2Id.put(getString(R.string.com_android_internal_r_drawable), R.string.com_android_internal_r_drawable);
 		resourceString2Id.put(getString(R.string.com_android_internal_r_string), R.string.com_android_internal_r_string);
-		
-		locationString2Type.put(getString(R.string.resources_internal), MyResourceReflection.TYPE_INTERNAL);
-		locationString2Type.put(getString(R.string.resources_public), MyResourceReflection.TYPE_PUBLIC);
-		
+
+		locationString2Type.put(getString(R.string.resources_internal), getString(R.string.resource_class_internal));
+		locationString2Type.put(getString(R.string.resources_public), getString(R.string.resource_class_public));
+
 		colorButtonListener =  new View.OnClickListener() {
 			public void onClick(View v) {
 				Button b = (Button) v;
@@ -114,11 +114,12 @@ public class Main extends Activity {
 		spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				myReflection = new MyResourceReflection(
-						myList, 
-						Main.this, 
-						locationString2Type.get(parent.getItemAtPosition(pos).toString()));
-				populateList(resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
+				String location = locationString2Type.get(spinnerLocation.getSelectedItem().toString());
+				populateResourceSpinner(location);
+				
+				populateList(
+						location,
+						resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
 			}
 
 			@Override
@@ -126,11 +127,13 @@ public class Main extends Activity {
 				//
 			}   	
 		});
-		
+
 		spinnerResources.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				populateList(resourceString2Id.get(parent.getItemAtPosition(pos).toString()));
+				populateList(
+						locationString2Type.get(spinnerLocation.getSelectedItem().toString()),
+						resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
 			}
 
 			@Override
@@ -148,7 +151,6 @@ public class Main extends Activity {
 		myList.setFastScrollEnabled(true);
 
 		tvOS.setText(Build.VERSION.RELEASE);
-		//populateList(R.string.android_r_drawable);
 	}
 
 	private void buildUi(){
@@ -164,15 +166,11 @@ public class Main extends Activity {
 		btnGray = (Button) findViewById(R.id.main_gray);
 
 		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
-		ArrayAdapter<CharSequence> adapterResources = ArrayAdapter.createFromResource(
-				this, R.array.resource_types_public, 
-				android.R.layout.simple_spinner_item);
-		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerResources.setAdapter(adapterResources);
+		populateResourceSpinner(getString(R.string.resource_class_public));
 
 		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
 		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
-				this, R.array.resource_location, 
+				this, R.array.resource_location_description_array, 
 				android.R.layout.simple_spinner_item);
 		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinnerLocation.setAdapter(adapterLocation);
@@ -180,8 +178,28 @@ public class Main extends Activity {
 		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
 	}
 
-	private void populateList(long listType) {
+	private void populateResourceSpinner(String location){
+		int array = -1;
+		if(getString(R.string.resource_class_internal).equals(location)){
+			array = R.array.resource_types_internal_array;
+		}
+		else if (getString(R.string.resource_class_public).equals(location)){
+			array = R.array.resource_types_public_array;
+		}
+		
+		ArrayAdapter<CharSequence> adapterResources = 
+				ArrayAdapter.createFromResource(
+				this, 
+				array, 
+				android.R.layout.simple_spinner_item);
+		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerResources.setAdapter(adapterResources);
+	}
+	
+	private void populateList(String baseClass, int listType) {
 		int res = 0;
+		String type = getString(listType);
+		Log.i(TAG, "^ Populating list for '" + baseClass + "' / '" + type + "'");
 
 		myList.setAdapter(null);
 
@@ -189,20 +207,26 @@ public class Main extends Activity {
 			Log.i(TAG, "^ Populating list with drawables");
 			tvTitleItems.setText(R.string.label_drawables);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getResourceDrawables();
+			res = myReflection.getResourceDrawables(
+					baseClass, 
+					type);
 		}
 		else if(R.string.android_r_color == listType || R.string.com_android_internal_r_color == listType){
 			Log.i(TAG, "^ Populating list with colours");
 			tvTitleItems.setText(R.string.label_colours);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getResourceColors();
+			res = myReflection.getResourceColors(
+					baseClass, 
+					type);
 		}
 		else if(R.string.android_r_string == listType || R.string.com_android_internal_r_string == listType){
 			Log.i(TAG, "^ Populating list with strings");
 			tvTitleItems.setText(R.string.label_strings);
 			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
-			res = myReflection.getResourceStrings();
+			res = myReflection.getResourceStrings(
+					baseClass, 
+					type);
 		} else {
 			Log.w(TAG, "^ NOT populating. Unknown type");
 			tvTitleItems.setText(R.string.label_unknown);
