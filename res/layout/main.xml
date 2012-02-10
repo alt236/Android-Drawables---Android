@@ -113,7 +113,7 @@
             android:cacheColorHint="#00000000" />
 
         <TextView
-            android:id="@+id/android:empty"
+            android:id="@+id/empty"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical|center_horizontal"

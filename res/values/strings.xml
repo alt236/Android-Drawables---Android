@@ -43,6 +43,9 @@
     <string name="label_strings">Strings:</string>
     <string name="label_unknown">Unknown</string>
     <string name="label_colours">Colours:</string>
+    <string name="label_styles">Styles:</string>
+    <string name="label_integer">Integer:</string>
+    
     <string name="image">image</string>
     
     <string name="resources_public">Public Resources</string>

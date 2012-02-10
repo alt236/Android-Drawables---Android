@@ -15,12 +15,13 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.adapters.ColourResourceAdaptor;
+import aws.apps.androidDrawables.adapters.IntegerResourceAdaptor;
 import aws.apps.androidDrawables.adapters.StringResourceAdaptor;
 
 public class MyResourceReflection {
 	private final String TAG = this.getClass().getName();
-//	public final static String TYPE_PUBLIC = "android.R";
-//	public final static String TYPE_INTERNAL = "com.android.internal.R";
+	//	public final static String TYPE_PUBLIC = "android.R";
+	//	public final static String TYPE_INTERNAL = "com.android.internal.R";
 
 	private ListView myList;
 	private Context context;
@@ -57,8 +58,10 @@ public class MyResourceReflection {
 				}
 			}
 			sortList(drInfo);
-			myList.setAdapter(new ColourResourceAdaptor(context,
-					R.layout.listitem_with_image, drInfo));
+			myList.setAdapter(new ColourResourceAdaptor(
+					context,
+					R.layout.listitem_with_image, 
+					drInfo));
 
 		} catch (Exception e) {
 			Log.e(TAG, "^ getResourceColors() Error: ", e);
@@ -97,9 +100,9 @@ public class MyResourceReflection {
 			sortList(drInfo);
 
 			myList.setAdapter(new SimpleAdapter(context, drInfo,
-					R.layout.listitem_with_image, new String[] { "image",
-							"name", "type" }, new int[] { R.id.icon,
-							R.id.string1, R.id.string2 }));
+					R.layout.listitem_with_image, 
+					new String[] { "image", "name", "type" }, 
+					new int[] { R.id.icon, R.id.string1, R.id.string2 }));
 
 		} catch (Exception e) {
 			Log.e(TAG, "^ getResourceDrawables() Error: ", e);
@@ -137,8 +140,10 @@ public class MyResourceReflection {
 			}
 			sortList(drInfo);
 
-			myList.setAdapter(new StringResourceAdaptor(context,
-					R.layout.listitem, drInfo));
+			myList.setAdapter(new StringResourceAdaptor(
+					context,
+					R.layout.listitem, 
+					drInfo));
 		} catch (Exception e) {
 			Log.e(TAG, "^ getResourceStrings() Error: ", e);
 		}
@@ -148,44 +153,106 @@ public class MyResourceReflection {
 			return 0;
 		}
 	}
-//	private String getType(String baseClass, int subClass) {
-//		if (TYPE_INTERNAL.equals(baseClass)) {
-//			switch (subClass) {
-//			case SUB_COLOR:
-//				return context.getString(R.string.com_android_internal_r_color);
-//			case SUB_DRAWABLE:
-//				return context
-//						.getString(R.string.com_android_internal_r_drawable);
-//			case SUB_STRING:
-//				return context
-//						.getString(R.string.com_android_internal_r_string);
-//			}
-//		} else if (TYPE_PUBLIC.equals(baseClass)) {
-//			switch (subClass) {
-//			case SUB_COLOR:
-//				return context.getString(R.string.android_r_color);
-//			case SUB_DRAWABLE:
-//				return context.getString(R.string.android_r_drawable);
-//			case SUB_STRING:
-//				return context.getString(R.string.android_r_string);
-//			}
-//		}
-//		return "";
-//	}
-	public void logSubClasses(String baseClass) {
-		Log.i(TAG, "^ Listing subclasses for '" + baseClass + "'");
 
+	@SuppressWarnings("unchecked")
+	public int getResourceInteger(String baseClass, String fullClass) {
+		Class<android.R.drawable> rString = null;
+
+		try {
+			Class<?> rClass = Class.forName(baseClass);
+			Class<?>[] subClassTable = rClass.getDeclaredClasses();
+			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+
+			for (Class<?> subclass : subClassTable) {
+				if (fullClass.equals(subclass.getCanonicalName())) {
+					rString = (Class<drawable>) subclass;
+					Field[] strings = rString.getFields();
+
+					for (Field dr : strings) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("id", dr.getInt(null));
+						map.put("name", dr.getName());
+						map.put("type", fullClass);
+						drInfo.add(map);
+					}
+					break; // we are not interested in anything else atm.
+				}
+			}
+			sortList(drInfo);
+
+			myList.setAdapter(new IntegerResourceAdaptor(
+					context,
+					R.layout.listitem, 
+					drInfo));
+		} catch (Exception e) {
+			Log.e(TAG, "^ getResourceInteger() Error: ", e);
+		}
+		if (rString != null) {
+			return rString.getFields().length;
+		} else {
+			return 0;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int getResourceGeneric(String baseClass, String fullClass) {
+		Class<android.R.drawable> rString = null;
+
+		try {
+			Class<?> rClass = Class.forName(baseClass);
+			Class<?>[] subClassTable = rClass.getDeclaredClasses();
+			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+
+			for (Class<?> subclass : subClassTable) {
+				if (fullClass.equals(subclass.getCanonicalName())) {
+					rString = (Class<drawable>) subclass;
+					Field[] strings = rString.getFields();
+
+					for (Field dr : strings) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("id", dr.getInt(null));
+						map.put("name", dr.getName());
+						map.put("type", fullClass);
+						drInfo.add(map);
+					}
+					break; // we are not interested in anything else atm.
+				}
+			}
+			sortList(drInfo);
+
+			myList.setAdapter(new SimpleAdapter(context, drInfo,
+					R.layout.listitem, 
+					new String[] {"name", "type" }, 
+					new int[] { R.id.string1, R.id.string2 }));
+		} catch (Exception e) {
+			Log.e(TAG, "^ getResourceGeneric() Error: ", e);
+		}
+		if (rString != null) {
+			return rString.getFields().length;
+		} else {
+			return 0;
+		}
+	}
+
+	public String getSubClasses(String baseClass) {
+		Log.i(TAG, "^ Listing subclasses for '" + baseClass + "'");
+		StringBuffer sb = new StringBuffer();
+		sb.append("Listing subclasses for '" + baseClass + "'\n");
 		try {
 			Class<?> rClass = Class.forName(baseClass);
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
 			Log.i(TAG, "^\tCount '" + subClassTable.length + "'");
 			for (Class<?> subclass : subClassTable) {
 				Log.i(TAG, "^ Subclass: " + subclass.getCanonicalName());
+				sb.append("\t" + subclass.getCanonicalName() + "\n");
 			}
 
 		} catch (Exception e) {
 			Log.e(TAG, "^ logSubClasses() Error: ", e);
+			sb.append("Error: " + e.getMessage() + "\n");
 		}
+		
+		return sb.toString();
 	}
 
 	private void sortList(List<Map<String, Object>> list) {

@@ -6,25 +6,32 @@
     </array>
     
     <array name="resource_types_public_array">
+        <item>@string/android_r_color</item>
     	<item>@string/android_r_drawable</item>
-    	<item>@string/android_r_color</item>
+    	<item>@string/android_r_integer</item>
     	<item>@string/android_r_string</item>
+    	<item>@string/android_r_style</item>
     </array>
 
-        <array name="resource_types_internal_array">
+   <array name="resource_types_internal_array">
+        <item>@string/com_android_internal_r_color</item>
     	<item>@string/com_android_internal_r_drawable</item>
-    	<item>@string/com_android_internal_r_color</item>
+    	<item>@string/com_android_internal_r_integer</item>
     	<item>@string/com_android_internal_r_string</item>
+    	<item>@string/com_android_internal_r_style</item>
     </array>
-    
     
 	<string name="android_r_drawable">android.R.drawable</string>
 	<string name="android_r_color">android.R.color</string>
 	<string name="android_r_string">android.R.string</string>	
+	<string name="android_r_style">android.R.style</string>	
+	<string name="android_r_integer">android.R.integer</string>	
 	
     <string name="com_android_internal_r_drawable">com.android.internal.R.drawable</string>
 	<string name="com_android_internal_r_color">com.android.internal.R.color</string>
 	<string name="com_android_internal_r_string">com.android.internal.R.string</string>	
+	<string name="com_android_internal_r_style">com.android.internal.R.style</string>	
+	<string name="com_android_internal_r_integer">com.android.internal.R.integer</string>
 	
 	<string name="resource_class_internal">com.android.internal.R</string>
 	<string name="resource_class_public">android.R</string>

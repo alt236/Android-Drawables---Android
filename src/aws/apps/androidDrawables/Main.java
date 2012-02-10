@@ -27,15 +27,6 @@ import aws.apps.androidDrawables.R.color;
 import aws.apps.androidDrawables.reflection.MyResourceReflection;
 import aws.apps.androidDrawables.util.UsefulBits;
 
-@SuppressWarnings("deprecation")
-enum MENU_BUTTONS {
-	ABOUT;
-
-	public static MENU_BUTTONS lookUpByOrdinal(int i) {
-		return MENU_BUTTONS.values()[i];
-	}
-}
-
 public class Main extends Activity {
 	private final String TAG =  this.getClass().getName();
 
@@ -60,6 +51,31 @@ public class Main extends Activity {
 
 	private View.OnClickListener colorButtonListener;
 
+	private void buildUi(){
+		tvOS = (TextView) findViewById(R.id.tvOS);
+
+		tvTitleItems = (TextView) findViewById(R.id.titleItems);
+		tvValueItems = (TextView) findViewById(R.id.valueItems);
+
+		btnBlack = (Button) findViewById(R.id.main_black);
+		btnWhite = (Button) findViewById(R.id.main_white);
+		btnGreen = (Button) findViewById(R.id.main_green);
+		btnOrange = (Button) findViewById(R.id.main_orange);
+		btnGray = (Button) findViewById(R.id.main_gray);
+
+		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
+		populateResourceSpinner(getString(R.string.resource_class_public));
+
+		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
+		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
+				this, R.array.resource_location_description_array, 
+				android.R.layout.simple_spinner_item);
+		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerLocation.setAdapter(adapterLocation);
+
+		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
+	}
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -79,18 +95,23 @@ public class Main extends Activity {
 			currentBgColour = (Integer) data;
 			myList.setBackgroundColor(currentBgColour);
 		}
-
+		myList.setEmptyView(findViewById(R.id.empty));
+		
 		buildUi();
 
 		myReflection = new MyResourceReflection(myList, Main.this);
 		resourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
 		resourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
 		resourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
-
+		resourceString2Id.put(getString(R.string.android_r_style), R.string.android_r_style);
+		resourceString2Id.put(getString(R.string.android_r_integer), R.string.android_r_integer);
+		
 		resourceString2Id.put(getString(R.string.com_android_internal_r_color), R.string.com_android_internal_r_color);
 		resourceString2Id.put(getString(R.string.com_android_internal_r_drawable), R.string.com_android_internal_r_drawable);
 		resourceString2Id.put(getString(R.string.com_android_internal_r_string), R.string.com_android_internal_r_string);
-
+		resourceString2Id.put(getString(R.string.com_android_internal_r_style), R.string.com_android_internal_r_style);
+		resourceString2Id.put(getString(R.string.com_android_internal_r_integer), R.string.com_android_internal_r_integer);
+		
 		locationString2Type.put(getString(R.string.resources_internal), getString(R.string.resource_class_internal));
 		locationString2Type.put(getString(R.string.resources_public), getString(R.string.resource_class_public));
 
@@ -116,7 +137,7 @@ public class Main extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				String location = locationString2Type.get(spinnerLocation.getSelectedItem().toString());
 				populateResourceSpinner(location);
-				
+
 				populateList(
 						location,
 						resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
@@ -153,49 +174,36 @@ public class Main extends Activity {
 		tvOS.setText(Build.VERSION.RELEASE);
 	}
 
-	private void buildUi(){
-		tvOS = (TextView) findViewById(R.id.tvOS);
-
-		tvTitleItems = (TextView) findViewById(R.id.titleItems);
-		tvValueItems = (TextView) findViewById(R.id.valueItems);
-
-		btnBlack = (Button) findViewById(R.id.main_black);
-		btnWhite = (Button) findViewById(R.id.main_white);
-		btnGreen = (Button) findViewById(R.id.main_green);
-		btnOrange = (Button) findViewById(R.id.main_orange);
-		btnGray = (Button) findViewById(R.id.main_gray);
-
-		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
-		populateResourceSpinner(getString(R.string.resource_class_public));
-
-		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
-		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
-				this, R.array.resource_location_description_array, 
-				android.R.layout.simple_spinner_item);
-		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerLocation.setAdapter(adapterLocation);
-
-		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
+	/** Creates the menu items */
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_BUTTONS.ABOUT.ordinal(), 0,
+				getString(R.string.label_menu_about)).setIcon(android.R.drawable.ic_menu_info_details);
+		menu.add(0, MENU_BUTTONS.GET_SUBCLASSES.ordinal(), 0,
+				"Subclasses").setIcon(android.R.drawable.ic_menu_more);	
+		return true;
 	}
 
-	private void populateResourceSpinner(String location){
-		int array = -1;
-		if(getString(R.string.resource_class_internal).equals(location)){
-			array = R.array.resource_types_internal_array;
+	/** Handles item selections */
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (MENU_BUTTONS.lookUpByOrdinal(item.getItemId())) {
+		case ABOUT:
+			uB.showAboutDialogue();
+			return true;
+		case GET_SUBCLASSES:
+			uB.ShowAlert(
+					"Subclasses", 
+					myReflection.getSubClasses(locationString2Type.get(spinnerLocation.getSelectedItem().toString())), 
+					getString(android.R.string.ok));
+			return true;
 		}
-		else if (getString(R.string.resource_class_public).equals(location)){
-			array = R.array.resource_types_public_array;
-		}
-		
-		ArrayAdapter<CharSequence> adapterResources = 
-				ArrayAdapter.createFromResource(
-				this, 
-				array, 
-				android.R.layout.simple_spinner_item);
-		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerResources.setAdapter(adapterResources);
+		return false;
 	}
-	
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return currentBgColour;
+	}
+
 	private void populateList(String baseClass, int listType) {
 		int res = 0;
 		String type = getString(listType);
@@ -219,7 +227,15 @@ public class Main extends Activity {
 					baseClass, 
 					type);
 		}
-		else if(R.string.android_r_string == listType || R.string.com_android_internal_r_string == listType){
+		else if(R.string.android_r_integer == listType || R.string.com_android_internal_r_integer == listType){
+			Log.i(TAG, "^ Populating list with integers");
+			tvTitleItems.setText(R.string.label_strings);
+			btnWhite.performClick();
+			buttonLayout.setVisibility(View.GONE);
+			res = myReflection.getResourceInteger(
+					baseClass, 
+					type);
+		}else if(R.string.android_r_string == listType || R.string.com_android_internal_r_string == listType){
 			Log.i(TAG, "^ Populating list with strings");
 			tvTitleItems.setText(R.string.label_strings);
 			btnWhite.performClick();
@@ -227,36 +243,36 @@ public class Main extends Activity {
 			res = myReflection.getResourceStrings(
 					baseClass, 
 					type);
-		} else {
-			Log.w(TAG, "^ NOT populating. Unknown type");
-			tvTitleItems.setText(R.string.label_unknown);
+		}else{
+			Log.i(TAG, "^ Populating list with generic data");
+			tvTitleItems.setText(R.string.label_styles);
+			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
+			res = myReflection.getResourceGeneric(
+					baseClass, 
+					type);
 		}
 
 		tvValueItems.setText(String.valueOf(res));
 	}
 
-	/** Creates the menu items */
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_BUTTONS.ABOUT.ordinal(), 0,
-				getString(R.string.label_menu_about)).setIcon(android.R.drawable.ic_menu_info_details);
-		return true;
-	}
 
-	/** Handles item selections */
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (MENU_BUTTONS.lookUpByOrdinal(item.getItemId())) {
-		case ABOUT:
-			uB.showAboutDialogue();
-			return true;
+	private void populateResourceSpinner(String location){
+		int array = -1;
+		if(getString(R.string.resource_class_internal).equals(location)){
+			array = R.array.resource_types_internal_array;
 		}
-		return false;
-	}
+		else if (getString(R.string.resource_class_public).equals(location)){
+			array = R.array.resource_types_public_array;
+		}
 
-
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return currentBgColour;
+		ArrayAdapter<CharSequence> adapterResources = 
+				ArrayAdapter.createFromResource(
+						this, 
+						array, 
+						android.R.layout.simple_spinner_item);
+		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerResources.setAdapter(adapterResources);
 	}
 
 	@SuppressWarnings({ "unchecked", "deprecation" })
@@ -277,5 +293,14 @@ public class Main extends Activity {
 		}catch(Exception e){
 			Log.e(TAG, "^ listOnClick error: " + e.getMessage());
 		}
+	}
+}
+
+@SuppressWarnings("deprecation")
+enum MENU_BUTTONS {
+	ABOUT, GET_SUBCLASSES;
+
+	public static MENU_BUTTONS lookUpByOrdinal(int i) {
+		return MENU_BUTTONS.values()[i];
 	}
 }
