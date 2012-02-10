@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <array name="resource_types">
+    <array name="resource_location">
+    	<item>@string/resources_public</item>
+    	<item>@string/resources_internal</item>
+    </array>
+    
+    
+    <array name="resource_types_public">
     	<item>@string/android_r_drawable</item>
     	<item>@string/android_r_color</item>
     	<item>@string/android_r_string</item>
     </array>
 
+        <array name="resource_types_internal">
+    	<item>@string/com_android_internal_r_drawable</item>
+    	<item>@string/com_android_internal_r_color</item>
+    	<item>@string/com_android_internal_r_string</item>
+    </array>
+    
+    
 	<string name="android_r_drawable">android.R.drawable</string>
 	<string name="android_r_color">android.R.color</string>
 	<string name="android_r_string">android.R.string</string>	
+	
+    <string name="com_android_internal_r_drawable">com.android.internal.R.drawable</string>
+	<string name="com_android_internal_r_color">com.android.internal.R.color</string>
+	<string name="com_android_internal_r_string">com.android.internal.R.string</string>	
 </resources>

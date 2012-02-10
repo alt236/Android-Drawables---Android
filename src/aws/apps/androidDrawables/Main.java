@@ -24,7 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R.color;
-import aws.apps.androidDrawables.reflection.MyReflection;
+import aws.apps.androidDrawables.reflection.MyResourceReflection;
 import aws.apps.androidDrawables.util.UsefulBits;
 
 @SuppressWarnings("deprecation")
@@ -50,17 +50,18 @@ public class Main extends Activity {
 	private TextView tvValueItems;
 	private TextView tvOS; 
 	private LinearLayout buttonLayout;
-	private Spinner spinner;
-	private MyReflection myReflection;
+	private Spinner spinnerLocation;
+	private Spinner spinnerResources;
+	private MyResourceReflection myReflection;
 	private int currentBgColour;
 
-	private final Hashtable<CharSequence, Integer> ressourceString2Id = new Hashtable<CharSequence, Integer>();
-
+	private final Hashtable<CharSequence, Integer> resourceString2Id = new Hashtable<CharSequence, Integer>();
+	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
+	
 	private View.OnClickListener colorButtonListener;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "^ Intent started");
 
 		setContentView(R.layout.main);
 		setTitle(getString(R.string.main_title));
@@ -82,9 +83,16 @@ public class Main extends Activity {
 
 		buildUi();
 
-		ressourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
-		ressourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
-		ressourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
+		resourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
+		resourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
+		resourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
+		
+		resourceString2Id.put(getString(R.string.com_android_internal_r_color), R.string.com_android_internal_r_color);
+		resourceString2Id.put(getString(R.string.com_android_internal_r_drawable), R.string.com_android_internal_r_drawable);
+		resourceString2Id.put(getString(R.string.com_android_internal_r_string), R.string.com_android_internal_r_string);
+		
+		locationString2Type.put(getString(R.string.resources_internal), MyResourceReflection.TYPE_INTERNAL);
+		locationString2Type.put(getString(R.string.resources_public), MyResourceReflection.TYPE_PUBLIC);
 		
 		colorButtonListener =  new View.OnClickListener() {
 			public void onClick(View v) {
@@ -99,14 +107,30 @@ public class Main extends Activity {
 		myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> av, View v, int pos, long id) {
-				listOnClick(v, pos, id);
+				resourceListOnClick(v, pos, id);
 			}
 		});
 
-		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+		spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				populateList(ressourceString2Id.get(parent.getItemAtPosition(pos).toString()));
+				myReflection = new MyResourceReflection(
+						myList, 
+						Main.this, 
+						locationString2Type.get(parent.getItemAtPosition(pos).toString()));
+				populateList(resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				//
+			}   	
+		});
+		
+		spinnerResources.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+				populateList(resourceString2Id.get(parent.getItemAtPosition(pos).toString()));
 			}
 
 			@Override
@@ -120,8 +144,6 @@ public class Main extends Activity {
 		btnGreen.setOnClickListener(colorButtonListener);
 		btnOrange.setOnClickListener(colorButtonListener);
 		btnGray.setOnClickListener(colorButtonListener);
-
-		myReflection = new MyReflection(myList, this);
 
 		myList.setFastScrollEnabled(true);
 
@@ -141,12 +163,19 @@ public class Main extends Activity {
 		btnOrange = (Button) findViewById(R.id.main_orange);
 		btnGray = (Button) findViewById(R.id.main_gray);
 
-		spinner = (Spinner) findViewById(R.id.spinner);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				this, R.array.resource_types, 
+		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
+		ArrayAdapter<CharSequence> adapterResources = ArrayAdapter.createFromResource(
+				this, R.array.resource_types_public, 
 				android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
+		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerResources.setAdapter(adapterResources);
+
+		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
+		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
+				this, R.array.resource_location, 
+				android.R.layout.simple_spinner_item);
+		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerLocation.setAdapter(adapterLocation);
 
 		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
 	}
@@ -156,24 +185,24 @@ public class Main extends Activity {
 
 		myList.setAdapter(null);
 
-		if(R.string.android_r_drawable == listType){
+		if(R.string.android_r_drawable == listType || R.string.com_android_internal_r_drawable == listType){
 			Log.i(TAG, "^ Populating list with drawables");
 			tvTitleItems.setText(R.string.label_drawables);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getDrawables();
+			res = myReflection.getResourceDrawables();
 		}
-		else if(R.string.android_r_color == listType){
+		else if(R.string.android_r_color == listType || R.string.com_android_internal_r_color == listType){
 			Log.i(TAG, "^ Populating list with colours");
 			tvTitleItems.setText(R.string.label_colours);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getColors();
+			res = myReflection.getResourceColors();
 		}
-		else if(R.string.android_r_string == listType){
+		else if(R.string.android_r_string == listType || R.string.com_android_internal_r_string == listType){
 			Log.i(TAG, "^ Populating list with strings");
 			tvTitleItems.setText(R.string.label_strings);
 			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
-			res = myReflection.getStrings();
+			res = myReflection.getResourceStrings();
 		} else {
 			Log.w(TAG, "^ NOT populating. Unknown type");
 			tvTitleItems.setText(R.string.label_unknown);
@@ -207,7 +236,7 @@ public class Main extends Activity {
 	}
 
 	@SuppressWarnings({ "unchecked", "deprecation" })
-	private void listOnClick(View v, int pos, long id){
+	private void resourceListOnClick(View v, int pos, long id){
 		String message = "";
 		String copied_text = "";
 

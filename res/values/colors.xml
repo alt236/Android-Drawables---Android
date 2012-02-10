@@ -9,4 +9,6 @@
     <color name="gray">#808080</color>
     
     <color name="list_text">#005588</color>
+    
+    <color name="holo_blue_light">#FF33B5E5</color>
 </resources>
