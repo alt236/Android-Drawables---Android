@@ -224,17 +224,18 @@ public class Main extends Activity {
 					baseClass, 
 					subClass);
 		}
-		else if(subClass.endsWith(".bool")){
-			Log.i(TAG, "^ Populating list with boolean");
-			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflector.getResourceBoolean(
-					baseClass, 
-					subClass);
-		}
 		else if(subClass.endsWith(".color")){
 			Log.i(TAG, "^ Populating list with colours");
 			buttonLayout.setVisibility(View.VISIBLE);
 			res = myReflector.getResourceColors(
+					baseClass, 
+					subClass);
+		}
+		else if(subClass.endsWith(".bool")){
+			Log.i(TAG, "^ Populating list with boolean");
+			btnWhite.performClick();
+			buttonLayout.setVisibility(View.GONE);
+			res = myReflector.getResourceBoolean(
 					baseClass, 
 					subClass);
 		}

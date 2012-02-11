@@ -16,7 +16,7 @@
 		·v0.0.2: Changed icon, minor bugfixes, added copy functionality.\n
 		·v0.0.3: Code cleanup, now compiles against v14.\n
 		·v0.0.4: Added other resource types.\n
-		·v0.0.5: Changed application name, resource types are now automatically enumerated.
+		·v0.0.5: Changed application name, resource types are now automatically enumerated.\n
 		·v0.0.6: Resource list in now alphabetically sorted.
 	</string>
 
