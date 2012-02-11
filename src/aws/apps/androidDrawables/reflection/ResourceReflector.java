@@ -289,7 +289,7 @@ public class ResourceReflector {
 		} catch (Exception e) {
 			Log.e(TAG, "^ logSubClasses() Error: ", e);
 		}
-
+		sortStringList(subClassList);
 		return subClassList;
 	}
 
@@ -303,4 +303,12 @@ public class ResourceReflector {
 		});
 	}
 
+	private void sortStringList(List<String> list) {
+		Collections.sort(list, new Comparator<String>() {
+			@Override
+			public int compare(String lhs, String rhs) {
+				return lhs.compareToIgnoreCase(rhs);
+			}
+		});
+	}
 }
