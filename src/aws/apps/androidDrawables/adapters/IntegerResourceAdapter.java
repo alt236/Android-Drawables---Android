@@ -8,15 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
 
-public class ColourResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
+public class IntegerResourceAdapter extends ArrayAdapter<Map<String, Object>> {
 	private final List<Map<String, Object>> items;
 	private final Context context;
 
-	public ColourResourceAdaptor(Context context, int textViewResourceId, List<Map<String, Object>> items) {
+	public IntegerResourceAdapter(Context context, int textViewResourceId, List<Map<String, Object>> items) {
 		super(context, textViewResourceId, items);
 		
 		this.items = items;
@@ -28,18 +27,17 @@ public class ColourResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
 		View v = convertView;
 		if (v == null) {
 			LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			v = vi.inflate(R.layout.listitem_with_image, null);
+			v = vi.inflate(R.layout.listitem, null);
 		}
 
 		Map<String, Object> o = items.get(position);
 		if (o != null) {			
-			ImageView image = (ImageView)v.findViewById(R.id.icon);
 			TextView top = (TextView) v.findViewById(R.id.string1);
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
-			int color= context.getResources().getColor((Integer) o.get("id"));
-			image.setBackgroundColor(color);
+
 			top.setText((String) o.get("name"));
-			bottom.setText("#" + Integer.toHexString(color).toUpperCase());
+			int value = context.getResources().getInteger((Integer) o.get("id"));
+			bottom.setText(String.valueOf(value));
 		}
 		return v;
 	}

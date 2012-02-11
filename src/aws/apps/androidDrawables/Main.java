@@ -1,5 +1,6 @@
 package aws.apps.androidDrawables;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
@@ -24,7 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R.color;
-import aws.apps.androidDrawables.reflection.MyResourceReflection;
+import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.util.UsefulBits;
 
 public class Main extends Activity {
@@ -43,10 +44,9 @@ public class Main extends Activity {
 	private LinearLayout buttonLayout;
 	private Spinner spinnerLocation;
 	private Spinner spinnerResources;
-	private MyResourceReflection myReflection;
+	private ResourceReflector myReflector;
 	private int currentBgColour;
 
-	private final Hashtable<CharSequence, Integer> resourceString2Id = new Hashtable<CharSequence, Integer>();
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
 	private View.OnClickListener colorButtonListener;
@@ -64,7 +64,6 @@ public class Main extends Activity {
 		btnGray = (Button) findViewById(R.id.main_gray);
 
 		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
-		populateResourceSpinner(getString(R.string.resource_class_public));
 
 		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
 		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
@@ -74,6 +73,29 @@ public class Main extends Activity {
 		spinnerLocation.setAdapter(adapterLocation);
 
 		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
+
+		populateResourceSpinner(getString(R.string.resource_class_public));
+	}
+
+	private String getTitle(String subClass){
+		// Epically English only function.
+		String subClassArray[];
+		String title = "";
+		subClassArray = subClass.split("\\.");
+
+		title = subClassArray[subClassArray.length -1];
+
+		if(title.length()>0){
+			title = title.substring(0,1).toUpperCase() + title.substring(1); 
+
+			if(!(title.endsWith("s"))){
+				title +=  "s";
+			}
+
+			title += ":";
+		}
+
+		return title;
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,22 +118,10 @@ public class Main extends Activity {
 			myList.setBackgroundColor(currentBgColour);
 		}
 		myList.setEmptyView(findViewById(R.id.empty));
-		
+		myReflector = new ResourceReflector(myList, Main.this);
+
 		buildUi();
 
-		myReflection = new MyResourceReflection(myList, Main.this);
-		resourceString2Id.put(getString(R.string.android_r_drawable), R.string.android_r_drawable);
-		resourceString2Id.put(getString(R.string.android_r_string), R.string.android_r_string);
-		resourceString2Id.put(getString(R.string.android_r_color), R.string.android_r_color);
-		resourceString2Id.put(getString(R.string.android_r_style), R.string.android_r_style);
-		resourceString2Id.put(getString(R.string.android_r_integer), R.string.android_r_integer);
-		
-		resourceString2Id.put(getString(R.string.com_android_internal_r_color), R.string.com_android_internal_r_color);
-		resourceString2Id.put(getString(R.string.com_android_internal_r_drawable), R.string.com_android_internal_r_drawable);
-		resourceString2Id.put(getString(R.string.com_android_internal_r_string), R.string.com_android_internal_r_string);
-		resourceString2Id.put(getString(R.string.com_android_internal_r_style), R.string.com_android_internal_r_style);
-		resourceString2Id.put(getString(R.string.com_android_internal_r_integer), R.string.com_android_internal_r_integer);
-		
 		locationString2Type.put(getString(R.string.resources_internal), getString(R.string.resource_class_internal));
 		locationString2Type.put(getString(R.string.resources_public), getString(R.string.resource_class_public));
 
@@ -138,9 +148,9 @@ public class Main extends Activity {
 				String location = locationString2Type.get(spinnerLocation.getSelectedItem().toString());
 				populateResourceSpinner(location);
 
-				populateList(
-						location,
-						resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
+				//				populateList(
+				//						location,
+				//						spinnerResources.getSelectedItem().toString());
 			}
 
 			@Override
@@ -154,7 +164,7 @@ public class Main extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				populateList(
 						locationString2Type.get(spinnerLocation.getSelectedItem().toString()),
-						resourceString2Id.get(spinnerResources.getSelectedItem().toString()));
+						spinnerResources.getSelectedItem().toString());
 			}
 
 			@Override
@@ -178,8 +188,6 @@ public class Main extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_BUTTONS.ABOUT.ordinal(), 0,
 				getString(R.string.label_menu_about)).setIcon(android.R.drawable.ic_menu_info_details);
-		menu.add(0, MENU_BUTTONS.GET_SUBCLASSES.ordinal(), 0,
-				"Subclasses").setIcon(android.R.drawable.ic_menu_more);	
 		return true;
 	}
 
@@ -189,68 +197,68 @@ public class Main extends Activity {
 		case ABOUT:
 			uB.showAboutDialogue();
 			return true;
-		case GET_SUBCLASSES:
-			uB.ShowAlert(
-					"Subclasses", 
-					myReflection.getSubClasses(locationString2Type.get(spinnerLocation.getSelectedItem().toString())), 
-					getString(android.R.string.ok));
-			return true;
 		}
 		return false;
 	}
+
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return currentBgColour;
 	}
 
-	private void populateList(String baseClass, int listType) {
+	private void populateList(String baseClass, String subClass) {
 		int res = 0;
-		String type = getString(listType);
-		Log.i(TAG, "^ Populating list for '" + baseClass + "' / '" + type + "'");
 
+		Log.i(TAG, "^ Populating list for '" + baseClass + "' / '" + subClass + "'");
 		myList.setAdapter(null);
 
-		if(R.string.android_r_drawable == listType || R.string.com_android_internal_r_drawable == listType){
+		if(subClass == null || subClass.length() <=0){return;}
+
+		tvTitleItems.setText(getTitle(subClass));
+
+		if(subClass.endsWith(".drawable")){
 			Log.i(TAG, "^ Populating list with drawables");
-			tvTitleItems.setText(R.string.label_drawables);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getResourceDrawables(
+			res = myReflector.getResourceDrawables(
 					baseClass, 
-					type);
+					subClass);
 		}
-		else if(R.string.android_r_color == listType || R.string.com_android_internal_r_color == listType){
+		else if(subClass.endsWith(".bool")){
+			Log.i(TAG, "^ Populating list with boolean");
+			buttonLayout.setVisibility(View.VISIBLE);
+			res = myReflector.getResourceBoolean(
+					baseClass, 
+					subClass);
+		}
+		else if(subClass.endsWith(".color")){
 			Log.i(TAG, "^ Populating list with colours");
-			tvTitleItems.setText(R.string.label_colours);
 			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflection.getResourceColors(
+			res = myReflector.getResourceColors(
 					baseClass, 
-					type);
+					subClass);
 		}
-		else if(R.string.android_r_integer == listType || R.string.com_android_internal_r_integer == listType){
+		else if(subClass.endsWith(".integer")){
 			Log.i(TAG, "^ Populating list with integers");
-			tvTitleItems.setText(R.string.label_strings);
 			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
-			res = myReflection.getResourceInteger(
+			res = myReflector.getResourceInteger(
 					baseClass, 
-					type);
-		}else if(R.string.android_r_string == listType || R.string.com_android_internal_r_string == listType){
+					subClass);
+		}else if(subClass.endsWith(".string")){
 			Log.i(TAG, "^ Populating list with strings");
-			tvTitleItems.setText(R.string.label_strings);
 			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
-			res = myReflection.getResourceStrings(
+			res = myReflector.getResourceStrings(
 					baseClass, 
-					type);
+					subClass);
 		}else{
 			Log.i(TAG, "^ Populating list with generic data");
-			tvTitleItems.setText(R.string.label_styles);
 			btnWhite.performClick();
 			buttonLayout.setVisibility(View.GONE);
-			res = myReflection.getResourceGeneric(
+			res = myReflector.getResourceGeneric(
 					baseClass, 
-					type);
+					subClass);
 		}
 
 		tvValueItems.setText(String.valueOf(res));
@@ -258,21 +266,14 @@ public class Main extends Activity {
 
 
 	private void populateResourceSpinner(String location){
-		int array = -1;
-		if(getString(R.string.resource_class_internal).equals(location)){
-			array = R.array.resource_types_internal_array;
-		}
-		else if (getString(R.string.resource_class_public).equals(location)){
-			array = R.array.resource_types_public_array;
-		}
 
-		ArrayAdapter<CharSequence> adapterResources = 
-				ArrayAdapter.createFromResource(
-						this, 
-						array, 
-						android.R.layout.simple_spinner_item);
-		adapterResources.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerResources.setAdapter(adapterResources);
+		ArrayList<String> list = myReflector.getSubClasses(location);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+				this,
+				android.R.layout.simple_spinner_item, 
+				list);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerResources.setAdapter(adapter);
 	}
 
 	@SuppressWarnings({ "unchecked", "deprecation" })
@@ -296,9 +297,8 @@ public class Main extends Activity {
 	}
 }
 
-@SuppressWarnings("deprecation")
 enum MENU_BUTTONS {
-	ABOUT, GET_SUBCLASSES;
+	ABOUT;
 
 	public static MENU_BUTTONS lookUpByOrdinal(int i) {
 		return MENU_BUTTONS.values()[i];

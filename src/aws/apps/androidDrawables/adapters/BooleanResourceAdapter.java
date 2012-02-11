@@ -11,11 +11,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
 
-public class StringResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
+public class BooleanResourceAdapter extends ArrayAdapter<Map<String, Object>> {
 	private final List<Map<String, Object>> items;
 	private final Context context;
 
-	public StringResourceAdaptor(Context context, int textViewResourceId, List<Map<String, Object>> items) {
+	public BooleanResourceAdapter(Context context, int textViewResourceId, List<Map<String, Object>> items) {
 		super(context, textViewResourceId, items);
 		
 		this.items = items;
@@ -36,7 +36,8 @@ public class StringResourceAdaptor extends ArrayAdapter<Map<String, Object>> {
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
 
 			top.setText((String) o.get("name"));
-			bottom.setText(context.getString((Integer) o.get("id")));
+			Boolean value = context.getResources().getBoolean((Integer) o.get("id"));
+			bottom.setText(String.valueOf(value));
 		}
 		return v;
 	}
