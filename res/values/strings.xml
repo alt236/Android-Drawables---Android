@@ -21,7 +21,7 @@
 
 	<string name="app_notes">
 		Notes:\n
-		Nothing of note!
+		WARNING: Internal resources (anything under \'com.android.internal.R\') are not guaranteed to be in all devices/android versions. Do not reference them directly in your application.
 	</string>
 	
 	<string name="label_menu_about">About</string>
