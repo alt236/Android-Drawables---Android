@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.ClipboardManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +45,8 @@ public class Main extends Activity {
 	private Spinner spinnerResources;
 	private ResourceReflector myReflector;
 	private int currentBgColour;
+	private QuickAction mQuickAction;
+	private int mSelectedRow = 0;
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
@@ -275,28 +276,65 @@ public class Main extends Activity {
 				list);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinnerResources.setAdapter(adapter);
+
+		setupQuickActions();
 	}
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
 	private void resourceListOnClick(View v, int pos, long id){
-		String message = "";
-		String copied_text = "";
+		mSelectedRow = pos;
+		mQuickAction.show(v);
+		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
+	}
 
-		try{
-			HashMap<String, Object> selection = (HashMap<String, Object>) myList.getItemAtPosition(pos);
 
-			copied_text ="'"+ selection.get("name") + "'"; 
-			message = "'" + copied_text +  "' "	+ getString(R.string.text_copied);
+	private static final int QUICK_ACTION_COPY = 1;
+	private static final int QUICK_ACTION_SHARE = 2;
+	private static final int QUICK_ACTION_SOURCE = 3;
 
-			uB.showToast(message, Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-			ClipboardManager ClipMan = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipMan.setText(copied_text);
+	private void setupQuickActions(){
+		mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL);
 
-		}catch(Exception e){
-			Log.e(TAG, "^ listOnClick error: " + e.getMessage());
-		}
+		ActionItem copyItem = new ActionItem(QUICK_ACTION_COPY, "Copy name", getResources().getDrawable(R.drawable.ic_copy));
+		ActionItem sharetItem = new ActionItem(QUICK_ACTION_SHARE, "Share Item", getResources().getDrawable(R.drawable.ic_envelope));
+		ActionItem viewSourceItem = new ActionItem(QUICK_ACTION_SOURCE, "View in Github", getResources().getDrawable(R.drawable.ic_eye_open));
+
+		mQuickAction.addActionItem(copyItem);
+		mQuickAction.addActionItem(sharetItem);
+		mQuickAction.addActionItem(viewSourceItem);
+
+		//setup the action item click listener
+		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+			@Override
+			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
+				//ActionItem actionItem = quickAction.getActionItem(pos);
+				switch(actionId){
+				case QUICK_ACTION_COPY:
+					@SuppressWarnings("unchecked")
+					HashMap<String, Object> selection = (HashMap<String, Object>) myList.getItemAtPosition(pos);
+
+					if(selection != null){
+						Object name = selection.get("name");
+						if(name!=null){
+							uB.copyText((String) name);
+						}
+					}
+
+					break;
+				case QUICK_ACTION_SHARE:
+					Toast.makeText(getApplicationContext(), "share item selected", Toast.LENGTH_SHORT).show();
+					break;
+				case QUICK_ACTION_SOURCE:
+					Toast.makeText(getApplicationContext(), "source item selected", Toast.LENGTH_SHORT).show();
+					break;
+				default:
+				}
+			}
+		});
 	}
 }
+
+
+
 
 enum MENU_BUTTONS {
 	ABOUT;
