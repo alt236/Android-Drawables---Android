@@ -893,6 +893,7 @@ containing a value of this type.
         public static final int main_list=0x7f070043;
         public static final int main_orange=0x7f070041;
         public static final int main_white=0x7f07003f;
+        public static final int menu_about=0x7f070045;
         public static final int normal=0x7f070001;
         public static final int scroller=0x7f07002e;
         public static final int showCustom=0x7f070008;
@@ -948,6 +949,9 @@ containing a value of this type.
         public static final int sherlock_spinner_dropdown_item=0x7f03001c;
         public static final int sherlock_spinner_item=0x7f03001d;
     }
+    public static final class menu {
+        public static final int main_menu=0x7f0d0000;
+    }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
@@ -995,6 +999,8 @@ containing a value of this type.
         public static final int ok=0x7f050014;
         public static final int orange=0x7f050019;
         public static final int os=0x7f050013;
+        public static final int quick_action_label_copy_value=0x7f050022;
+        public static final int quickaction_label_copy_name=0x7f050021;
         public static final int resource=0x7f05001d;
         public static final int resource_class_internal=0x7f05000c;
         public static final int resource_class_public=0x7f05000d;

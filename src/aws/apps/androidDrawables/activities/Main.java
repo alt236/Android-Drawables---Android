@@ -6,6 +6,7 @@ import java.util.Hashtable;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
+import net.londatiga.android.QuickAction.OnActionItemClickListener;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,9 +28,10 @@ import aws.apps.androidDrawables.util.UsefulBits;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class Main extends SherlockActivity implements OnClickListener{
+public class Main extends SherlockActivity implements OnClickListener, OnActionItemClickListener{
 	private final String TAG =  this.getClass().getName();
 
 	private UsefulBits uB;
@@ -51,12 +53,11 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
-	private static final int QUICK_ACTION_COPY = 1;
-
+	private static final int QUICK_ACTION_COPY_NAME = 1;
 	private static final int QUICK_ACTION_SHARE = 2;
-
 	private static final int QUICK_ACTION_SOURCE = 3;
-
+	private static final int QUICK_ACTION_COPY_VALUE = 4;
+	
 	private void buildUi(){
 		tvOS = (TextView) findViewById(R.id.tvOS);
 
@@ -198,28 +199,65 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 	/** Creates the menu items */
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_BUTTONS.ABOUT.ordinal(), 0,
-				getString(R.string.label_menu_about)).setIcon(android.R.drawable.ic_menu_info_details);
+		MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.main_menu, menu);
 		return true;
 	}
 
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onItemClick(QuickAction source, int pos, int actionId) {
+		//ActionItem actionItem = quickAction.getActionItem(pos);
+		HashMap<String, Object> selection;
+		
+		switch(actionId){
+		case QUICK_ACTION_COPY_NAME:
+			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
+
+			if(selection != null){
+				Object name = selection.get("name");
+				if(name!=null){
+					uB.copyText((String) name);
+				}
+			}
+			break;
+		case QUICK_ACTION_COPY_VALUE:
+//			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
+//
+//			if(selection != null){
+//				Object name = selection.get("name");
+//				if(name!=null){
+//					uB.copyText((String) name);
+//				}
+//			}
+			Toast.makeText(getApplicationContext(), "copy value item selected", Toast.LENGTH_SHORT).show();
+			break;			
+		case QUICK_ACTION_SHARE:
+			Toast.makeText(getApplicationContext(), "share item selected", Toast.LENGTH_SHORT).show();
+			break;
+		case QUICK_ACTION_SOURCE:
+			Toast.makeText(getApplicationContext(), "source item selected", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+		}
+		
+	}
+
 	/** Handles item selections */
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (MENU_BUTTONS.lookUpByOrdinal(item.getItemId())) {
-		case ABOUT:
+		if(R.id.menu_about == item.getItemId()){
 			uB.showAboutDialogue();
 			return true;
 		}
 		return false;
 	}
 
+
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return currentBgColour;
 	}
-
-
 	private void populateList(String baseClass, String subClass) {
 		int res = 0;
 		boolean bShowColourBar = false;
@@ -289,6 +327,7 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 		setupQuickActions();
 	}
+
 	private void resourceListOnClick(View v, int pos, long id){
 		mQuickAction.show(v);
 		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
@@ -301,49 +340,16 @@ public class Main extends SherlockActivity implements OnClickListener{
 	private void setupQuickActions(){
 		mQuickAction 	= new QuickAction(this, QuickAction.ORIENTATION_VERTICAL, QuickAction.COLOUR_LIGHT);
 
-		ActionItem copyItem = new ActionItem(QUICK_ACTION_COPY, "Copy name", getResources().getDrawable(R.drawable.ic_copy));
+		ActionItem copyItemName = new ActionItem(QUICK_ACTION_COPY_NAME, getString(R.string.quickaction_label_copy_name), getResources().getDrawable(R.drawable.ic_copy));
+		//ActionItem copyItemValue = new ActionItem(QUICK_ACTION_COPY_VALUE, getString(R.string.quick_action_label_copy_value), getResources().getDrawable(R.drawable.ic_copy));
 		//ActionItem sharetItem = new ActionItem(QUICK_ACTION_SHARE, "Share Item", getResources().getDrawable(R.drawable.ic_envelope));
 		//ActionItem viewSourceItem = new ActionItem(QUICK_ACTION_SOURCE, "View in Github", getResources().getDrawable(R.drawable.ic_eye_open));
 
-		mQuickAction.addActionItem(copyItem);
+		mQuickAction.addActionItem(copyItemName);
 		//mQuickAction.addActionItem(sharetItem);
 		//mQuickAction.addActionItem(viewSourceItem);
 
 		//setup the action item click listener
-		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-			@Override
-			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-				//ActionItem actionItem = quickAction.getActionItem(pos);
-				switch(actionId){
-				case QUICK_ACTION_COPY:
-					@SuppressWarnings("unchecked")
-					HashMap<String, Object> selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
-
-					if(selection != null){
-						Object name = selection.get("name");
-						if(name!=null){
-							uB.copyText((String) name);
-						}
-					}
-
-					break;
-				case QUICK_ACTION_SHARE:
-					Toast.makeText(getApplicationContext(), "share item selected", Toast.LENGTH_SHORT).show();
-					break;
-				case QUICK_ACTION_SOURCE:
-					Toast.makeText(getApplicationContext(), "source item selected", Toast.LENGTH_SHORT).show();
-					break;
-				default:
-				}
-			}
-		});
-	}
-}
-
-enum MENU_BUTTONS {
-	ABOUT;
-
-	public static MENU_BUTTONS lookUpByOrdinal(int i) {
-		return MENU_BUTTONS.values()[i];
+		mQuickAction.setOnActionItemClickListener(this);
 	}
 }

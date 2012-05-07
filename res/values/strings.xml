@@ -46,4 +46,6 @@
     
     <string name="resources_public">Public Resources</string>
     <string name="resources_internal">Internal Resources</string>
+    <string name="quickaction_label_copy_name">Copy name</string>
+    <string name="quick_action_label_copy_value">Copy value</string>
 </resources>
