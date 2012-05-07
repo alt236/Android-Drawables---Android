@@ -2,13 +2,12 @@
 <resources>
     <color name="default_text_color">#FFEAEAEA</color>
     
-    <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
-    <color name="green">#A4C639</color>
-    <color name="orange">#FF8C00</color>
-    <color name="gray">#808080</color>
-    
-    <color name="list_text">#005588</color>
-    
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="green">#FFA4C639</color>
+    <color name="orange">#FFFF8C00</color>
+    <color name="gray">#FF808080</color>
+   
+    <color name="list_text">#FF005588</color>
     <color name="holo_blue_light">#FF33B5E5</color>
 </resources>

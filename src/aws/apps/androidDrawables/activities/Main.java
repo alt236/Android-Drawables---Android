@@ -1,4 +1,4 @@
-package aws.apps.androidDrawables;
+package aws.apps.androidDrawables.activities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,14 +6,12 @@ import java.util.Hashtable;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -23,15 +21,19 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import aws.apps.androidDrawables.R.color;
+import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.util.UsefulBits;
 
-public class Main extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class Main extends SherlockActivity implements OnClickListener{
 	private final String TAG =  this.getClass().getName();
 
 	private UsefulBits uB;
-	private ListView myList;
+	private ListView mList;
 	private Button btnBlack;
 	private Button btnWhite;
 	private Button btnGreen;
@@ -40,17 +42,14 @@ public class Main extends Activity {
 	private TextView tvTitleItems;
 	private TextView tvValueItems;
 	private TextView tvOS; 
-	private LinearLayout buttonLayout;
-	private Spinner spinnerLocation;
-	private Spinner spinnerResources;
-	private ResourceReflector myReflector;
+	private LinearLayout mColourButtonSegment;
+	private Spinner mSpinnerLocation;
+	private Spinner mSpinnerResources;
+	private ResourceReflector mReflector;
 	private int currentBgColour;
 	private QuickAction mQuickAction;
-	private int mSelectedRow = 0;
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
-
-	private View.OnClickListener colorButtonListener;
 
 	private void buildUi(){
 		tvOS = (TextView) findViewById(R.id.tvOS);
@@ -63,21 +62,32 @@ public class Main extends Activity {
 		btnGreen = (Button) findViewById(R.id.main_green);
 		btnOrange = (Button) findViewById(R.id.main_orange);
 		btnGray = (Button) findViewById(R.id.main_gray);
-
-		spinnerResources = (Spinner) findViewById(R.id.spinnerResource);
-
-		spinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
+		
+		btnBlack.setOnClickListener(this);
+		btnWhite.setOnClickListener(this);
+		btnGreen.setOnClickListener(this);
+		btnOrange.setOnClickListener(this);
+		btnGray.setOnClickListener(this);
+		
+		mSpinnerResources = (Spinner) findViewById(R.id.spinnerResource);
+		mSpinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
+		
 		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
 				this, R.array.resource_location_description_array, 
 				android.R.layout.simple_spinner_item);
+		
 		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerLocation.setAdapter(adapterLocation);
+		mSpinnerLocation.setAdapter(adapterLocation);
+		mColourButtonSegment = (LinearLayout) findViewById(R.id.main_colour_buttons);
 
-		buttonLayout = (LinearLayout) findViewById(R.id.main_colour_buttons);
-
-		populateResourceSpinner(getString(R.string.resource_class_public));
+		mList = (ListView) findViewById(R.id.main_list);
+		
 	}
 
+	private void selectDefaultColour(){
+		btnBlack.performClick();
+	}
+	
 	private String getTitle(String subClass){
 		// Epically English only function.
 		String subClassArray[];
@@ -105,53 +115,50 @@ public class Main extends Activity {
 		setContentView(R.layout.main);
 
 		uB = new UsefulBits(this);
-
+		
+		
+		buildUi();
 		final Object data = getLastNonConfigurationInstance();
-
+		
+		
 		if (data==null){
-			myList = (ListView) findViewById(R.id.main_list);
-			currentBgColour = getResources().getColor(color.white);
-			myList.setBackgroundColor(currentBgColour);
+//			mList = (ListView) findViewById(R.id.main_list);
+//			currentBgColour = getResources().getColor(R.color.black);
+//			mList.setBackgroundColor(currentBgColour);
 
 		} else{
-			if(myList==null){myList = (ListView) findViewById(R.id.main_list);}
-			currentBgColour = (Integer) data;
-			myList.setBackgroundColor(currentBgColour);
+//			if(mList==null){
+//				mList = (ListView) findViewById(R.id.main_list);
+//				}
+//			currentBgColour = (Integer) data;
+//			mList.setBackgroundColor(currentBgColour);
 		}
-		myList.setEmptyView(findViewById(R.id.empty));
-		myReflector = new ResourceReflector(myList, Main.this);
+		
+		mReflector = new ResourceReflector(mList, Main.this);
+		populateResourceSpinner(getString(R.string.resource_class_public));
+		
 
-		buildUi();
 
+		
+		
+		mList.setEmptyView(findViewById(R.id.empty));
+		
+		
 		locationString2Type.put(getString(R.string.resources_internal), getString(R.string.resource_class_internal));
 		locationString2Type.put(getString(R.string.resources_public), getString(R.string.resource_class_public));
 
-		colorButtonListener =  new View.OnClickListener() {
-			public void onClick(View v) {
-				Button b = (Button) v;
-				// You need to set android:cacheColorHint="#00000000" in the 
-				// list xml to make the list background stick.
-				currentBgColour = Color.parseColor(b.getTag().toString());
-				myList.setBackgroundColor(currentBgColour);
-			}
-		};
-
-		myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> av, View v, int pos, long id) {
 				resourceListOnClick(v, pos, id);
 			}
 		});
 
-		spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
+		mSpinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-				String location = locationString2Type.get(spinnerLocation.getSelectedItem().toString());
+				String location = locationString2Type.get(mSpinnerLocation.getSelectedItem().toString());
 				populateResourceSpinner(location);
-
-				//				populateList(
-				//						location,
-				//						spinnerResources.getSelectedItem().toString());
 			}
 
 			@Override
@@ -160,12 +167,12 @@ public class Main extends Activity {
 			}   	
 		});
 
-		spinnerResources.setOnItemSelectedListener(new OnItemSelectedListener() {
+		mSpinnerResources.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 				populateList(
-						locationString2Type.get(spinnerLocation.getSelectedItem().toString()),
-						spinnerResources.getSelectedItem().toString());
+						locationString2Type.get(mSpinnerLocation.getSelectedItem().toString()),
+						mSpinnerResources.getSelectedItem().toString());
 			}
 
 			@Override
@@ -174,15 +181,12 @@ public class Main extends Activity {
 			}   	
 		});
 
-		btnBlack.setOnClickListener(colorButtonListener);
-		btnWhite.setOnClickListener(colorButtonListener);
-		btnGreen.setOnClickListener(colorButtonListener);
-		btnOrange.setOnClickListener(colorButtonListener);
-		btnGray.setOnClickListener(colorButtonListener);
 
-		myList.setFastScrollEnabled(true);
+		mList.setFastScrollEnabled(true);
 
 		tvOS.setText(Build.VERSION.RELEASE);
+		
+		selectDefaultColour();
 	}
 
 	/** Creates the menu items */
@@ -212,7 +216,7 @@ public class Main extends Activity {
 		int res = 0;
 
 		Log.i(TAG, "^ Populating list for '" + baseClass + "' / '" + subClass + "'");
-		myList.setAdapter(null);
+		mList.setAdapter(null);
 
 		if(subClass == null || subClass.length() <=0){return;}
 
@@ -220,45 +224,45 @@ public class Main extends Activity {
 
 		if(subClass.endsWith(".drawable")){
 			Log.i(TAG, "^ Populating list with drawables");
-			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflector.getResourceDrawables(
+			mColourButtonSegment.setVisibility(View.VISIBLE);
+			res = mReflector.getResourceDrawables(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".color")){
 			Log.i(TAG, "^ Populating list with colours");
-			buttonLayout.setVisibility(View.VISIBLE);
-			res = myReflector.getResourceColors(
+			mColourButtonSegment.setVisibility(View.VISIBLE);
+			res = mReflector.getResourceColors(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".bool")){
 			Log.i(TAG, "^ Populating list with boolean");
-			btnWhite.performClick();
-			buttonLayout.setVisibility(View.GONE);
-			res = myReflector.getResourceBoolean(
+			selectDefaultColour();
+			mColourButtonSegment.setVisibility(View.GONE);
+			res = mReflector.getResourceBoolean(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".integer")){
 			Log.i(TAG, "^ Populating list with integers");
-			btnWhite.performClick();
-			buttonLayout.setVisibility(View.GONE);
-			res = myReflector.getResourceInteger(
+			selectDefaultColour();
+			mColourButtonSegment.setVisibility(View.GONE);
+			res = mReflector.getResourceInteger(
 					baseClass, 
 					subClass);
 		}else if(subClass.endsWith(".string")){
 			Log.i(TAG, "^ Populating list with strings");
-			btnWhite.performClick();
-			buttonLayout.setVisibility(View.GONE);
-			res = myReflector.getResourceStrings(
+			selectDefaultColour();
+			mColourButtonSegment.setVisibility(View.GONE);
+			res = mReflector.getResourceStrings(
 					baseClass, 
 					subClass);
 		}else{
 			Log.i(TAG, "^ Populating list with generic data");
-			btnWhite.performClick();
-			buttonLayout.setVisibility(View.GONE);
-			res = myReflector.getResourceGeneric(
+			selectDefaultColour();
+			mColourButtonSegment.setVisibility(View.GONE);
+			res = mReflector.getResourceGeneric(
 					baseClass, 
 					subClass);
 		}
@@ -269,19 +273,18 @@ public class Main extends Activity {
 
 	private void populateResourceSpinner(String location){
 
-		ArrayList<String> list = myReflector.getSubClasses(location);
+		ArrayList<String> list = mReflector.getSubClasses(location);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 				this,
 				android.R.layout.simple_spinner_item, 
 				list);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerResources.setAdapter(adapter);
+		mSpinnerResources.setAdapter(adapter);
 
 		setupQuickActions();
 	}
 
 	private void resourceListOnClick(View v, int pos, long id){
-		mSelectedRow = pos;
 		mQuickAction.show(v);
 		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
 	}
@@ -292,7 +295,7 @@ public class Main extends Activity {
 	private static final int QUICK_ACTION_SOURCE = 3;
 
 	private void setupQuickActions(){
-		mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL);
+		mQuickAction 	= new QuickAction(this, QuickAction.ORIENTATION_VERTICAL, QuickAction.COLOUR_LIGHT);
 
 		ActionItem copyItem = new ActionItem(QUICK_ACTION_COPY, "Copy name", getResources().getDrawable(R.drawable.ic_copy));
 		ActionItem sharetItem = new ActionItem(QUICK_ACTION_SHARE, "Share Item", getResources().getDrawable(R.drawable.ic_envelope));
@@ -310,7 +313,7 @@ public class Main extends Activity {
 				switch(actionId){
 				case QUICK_ACTION_COPY:
 					@SuppressWarnings("unchecked")
-					HashMap<String, Object> selection = (HashMap<String, Object>) myList.getItemAtPosition(pos);
+					HashMap<String, Object> selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
 
 					if(selection != null){
 						Object name = selection.get("name");
@@ -330,6 +333,15 @@ public class Main extends Activity {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onClick(View v) {
+		Button b = (Button) v;
+		// You need to set android:cacheColorHint="#00000000" in the 
+		// list xml to make the list background stick.
+		currentBgColour = Color.parseColor(b.getTag().toString());
+		mList.setBackgroundColor(currentBgColour);
 	}
 }
 

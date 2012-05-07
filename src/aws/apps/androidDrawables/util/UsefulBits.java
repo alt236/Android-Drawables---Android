@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -114,7 +113,7 @@ public class UsefulBits {
 		String message = "'" + text +  "' " + c.getString(R.string.text_copied);
 
 		try{
-			ClipboardManager ClipMan = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
+			android.text.ClipboardManager ClipMan = (android.text.ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
 			ClipMan.setText(text);
 			showToast(message, Toast.LENGTH_SHORT, Gravity.TOP,0,0);
 		}catch(Exception e){
