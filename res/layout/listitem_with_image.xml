@@ -23,6 +23,7 @@
         android:layout_width="0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1"
+        android:paddingLeft="2dp"
         android:orientation="vertical" >
 
         <TextView
@@ -44,6 +45,7 @@
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:singleLine="true"
+            android:gravity="center_vertical|right"
             android:textColor="@color/list_text" />
     </LinearLayout>
 

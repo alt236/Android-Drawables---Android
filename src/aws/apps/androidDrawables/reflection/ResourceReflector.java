@@ -21,13 +21,13 @@ import aws.apps.androidDrawables.adapters.StringResourceAdapter;
 
 public class ResourceReflector {
 	private final String TAG = this.getClass().getName();
-	private ListView myList;
-	private Context context;
+	private ListView mList;
+	private Context mContext;
 
 	public ResourceReflector(ListView myList, Context context) {
 		super();
-		this.myList = myList;
-		this.context = context;
+		this.mList = myList;
+		this.mContext = context;
 
 	}
 
@@ -78,8 +78,8 @@ public class ResourceReflector {
 		sortList(itemList);
 			sortList(itemList);
 
-			myList.setAdapter(new BooleanResourceAdapter(
-					context,
+			mList.setAdapter(new BooleanResourceAdapter(
+					mContext,
 					R.layout.listitem, 
 					itemList));
 			
@@ -91,8 +91,8 @@ public class ResourceReflector {
 		sortList(itemList);
 			sortList(itemList);
 
-			myList.setAdapter(new ColourResourceAdapter(
-					context,
+			mList.setAdapter(new ColourResourceAdapter(
+					mContext,
 					R.layout.listitem_with_image, 
 					itemList));
 			
@@ -126,7 +126,7 @@ public class ResourceReflector {
 
 			sortList(drInfo);
 
-			myList.setAdapter(new SimpleAdapter(context, drInfo,
+			mList.setAdapter(new SimpleAdapter(mContext, drInfo,
 					R.layout.listitem_with_image, 
 					new String[] { "image", "name", "type" }, 
 					new int[] { R.id.icon, R.id.string1, R.id.string2 }));
@@ -145,7 +145,7 @@ public class ResourceReflector {
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, false);
 		sortList(itemList);
 
-		myList.setAdapter(new SimpleAdapter(context, itemList,
+		mList.setAdapter(new SimpleAdapter(mContext, itemList,
 				R.layout.listitem, 
 				new String[] {"name", "type" }, 
 				new int[] { R.id.string1, R.id.string2 }));
@@ -159,8 +159,8 @@ public class ResourceReflector {
 		sortList(itemList);
 		sortList(itemList);
 
-		myList.setAdapter(new IntegerResourceAdapter(
-				context,
+		mList.setAdapter(new IntegerResourceAdapter(
+				mContext,
 				R.layout.listitem, 
 				itemList));
 
@@ -172,8 +172,8 @@ public class ResourceReflector {
 		sortList(itemList);
 		sortList(itemList);
 
-		myList.setAdapter(new StringResourceAdapter(
-				context,
+		mList.setAdapter(new StringResourceAdapter(
+				mContext,
 				R.layout.listitem, 
 				itemList));
 		return itemList.size();
