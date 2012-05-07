@@ -51,6 +51,12 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
+	private static final int QUICK_ACTION_COPY = 1;
+
+	private static final int QUICK_ACTION_SHARE = 2;
+
+	private static final int QUICK_ACTION_SOURCE = 3;
+
 	private void buildUi(){
 		tvOS = (TextView) findViewById(R.id.tvOS);
 
@@ -62,32 +68,28 @@ public class Main extends SherlockActivity implements OnClickListener{
 		btnGreen = (Button) findViewById(R.id.main_green);
 		btnOrange = (Button) findViewById(R.id.main_orange);
 		btnGray = (Button) findViewById(R.id.main_gray);
-		
+
 		btnBlack.setOnClickListener(this);
 		btnWhite.setOnClickListener(this);
 		btnGreen.setOnClickListener(this);
 		btnOrange.setOnClickListener(this);
 		btnGray.setOnClickListener(this);
-		
+
 		mSpinnerResources = (Spinner) findViewById(R.id.spinnerResource);
 		mSpinnerLocation = (Spinner) findViewById(R.id.spinnerLocation);
-		
+
 		ArrayAdapter<CharSequence> adapterLocation = ArrayAdapter.createFromResource(
 				this, R.array.resource_location_description_array, 
 				android.R.layout.simple_spinner_item);
-		
+
 		adapterLocation.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		mSpinnerLocation.setAdapter(adapterLocation);
 		mColourButtonSegment = (LinearLayout) findViewById(R.id.main_colour_buttons);
 
 		mList = (ListView) findViewById(R.id.main_list);
-		
+
 	}
 
-	private void selectDefaultColour(){
-		btnBlack.performClick();
-	}
-	
 	private String getTitle(String subClass){
 		// Epically English only function.
 		String subClassArray[];
@@ -109,41 +111,46 @@ public class Main extends SherlockActivity implements OnClickListener{
 		return title;
 	}
 
+	@Override
+	public void onClick(View v) {
+		Button b = (Button) v;
+		// You need to set android:cacheColorHint="#00000000" in the 
+		// list xml to make the list background stick.
+		currentBgColour = Color.parseColor(b.getTag().toString());
+		mList.setBackgroundColor(currentBgColour);
+	}
+
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
 
 		uB = new UsefulBits(this);
-		
-		
+
+
 		buildUi();
 		final Object data = getLastNonConfigurationInstance();
-		
-		
+
+
 		if (data==null){
-//			mList = (ListView) findViewById(R.id.main_list);
-//			currentBgColour = getResources().getColor(R.color.black);
-//			mList.setBackgroundColor(currentBgColour);
+			//			mList = (ListView) findViewById(R.id.main_list);
+			//			currentBgColour = getResources().getColor(R.color.black);
+			//			mList.setBackgroundColor(currentBgColour);
 
 		} else{
-//			if(mList==null){
-//				mList = (ListView) findViewById(R.id.main_list);
-//				}
-//			currentBgColour = (Integer) data;
-//			mList.setBackgroundColor(currentBgColour);
+			//			if(mList==null){
+			//				mList = (ListView) findViewById(R.id.main_list);
+			//				}
+			//			currentBgColour = (Integer) data;
+			//			mList.setBackgroundColor(currentBgColour);
 		}
-		
+
 		mReflector = new ResourceReflector(mList, Main.this);
 		populateResourceSpinner(getString(R.string.resource_class_public));
-		
 
-
-		
-		
 		mList.setEmptyView(findViewById(R.id.empty));
-		
-		
+
 		locationString2Type.put(getString(R.string.resources_internal), getString(R.string.resource_class_internal));
 		locationString2Type.put(getString(R.string.resources_public), getString(R.string.resource_class_public));
 
@@ -185,7 +192,7 @@ public class Main extends SherlockActivity implements OnClickListener{
 		mList.setFastScrollEnabled(true);
 
 		tvOS.setText(Build.VERSION.RELEASE);
-		
+
 		selectDefaultColour();
 	}
 
@@ -195,6 +202,7 @@ public class Main extends SherlockActivity implements OnClickListener{
 				getString(R.string.label_menu_about)).setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
+
 
 	/** Handles item selections */
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -206,14 +214,15 @@ public class Main extends SherlockActivity implements OnClickListener{
 		return false;
 	}
 
-
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return currentBgColour;
 	}
 
+
 	private void populateList(String baseClass, String subClass) {
 		int res = 0;
+		boolean bShowColourBar = false;
 
 		Log.i(TAG, "^ Populating list for '" + baseClass + "' / '" + subClass + "'");
 		mList.setAdapter(null);
@@ -224,53 +233,50 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 		if(subClass.endsWith(".drawable")){
 			Log.i(TAG, "^ Populating list with drawables");
-			mColourButtonSegment.setVisibility(View.VISIBLE);
+			bShowColourBar = true;
 			res = mReflector.getResourceDrawables(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".color")){
 			Log.i(TAG, "^ Populating list with colours");
-			mColourButtonSegment.setVisibility(View.VISIBLE);
+			bShowColourBar = true;
 			res = mReflector.getResourceColors(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".bool")){
 			Log.i(TAG, "^ Populating list with boolean");
-			selectDefaultColour();
-			mColourButtonSegment.setVisibility(View.GONE);
 			res = mReflector.getResourceBoolean(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".integer")){
 			Log.i(TAG, "^ Populating list with integers");
-			selectDefaultColour();
-			mColourButtonSegment.setVisibility(View.GONE);
 			res = mReflector.getResourceInteger(
 					baseClass, 
 					subClass);
 		}else if(subClass.endsWith(".string")){
 			Log.i(TAG, "^ Populating list with strings");
-			selectDefaultColour();
-			mColourButtonSegment.setVisibility(View.GONE);
 			res = mReflector.getResourceStrings(
 					baseClass, 
 					subClass);
 		}else{
 			Log.i(TAG, "^ Populating list with generic data");
-			selectDefaultColour();
-			mColourButtonSegment.setVisibility(View.GONE);
 			res = mReflector.getResourceGeneric(
 					baseClass, 
 					subClass);
 		}
 
+		if(bShowColourBar){
+			mColourButtonSegment.setVisibility(View.VISIBLE);
+		}else{
+			mColourButtonSegment.setVisibility(View.GONE);
+			selectDefaultColour();
+		}
+
 		tvValueItems.setText(String.valueOf(res));
 	}
-
-
 	private void populateResourceSpinner(String location){
 
 		ArrayList<String> list = mReflector.getSubClasses(location);
@@ -283,27 +289,25 @@ public class Main extends SherlockActivity implements OnClickListener{
 
 		setupQuickActions();
 	}
-
 	private void resourceListOnClick(View v, int pos, long id){
 		mQuickAction.show(v);
 		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
 	}
 
-
-	private static final int QUICK_ACTION_COPY = 1;
-	private static final int QUICK_ACTION_SHARE = 2;
-	private static final int QUICK_ACTION_SOURCE = 3;
+	private void selectDefaultColour(){
+		btnBlack.performClick();
+	}
 
 	private void setupQuickActions(){
 		mQuickAction 	= new QuickAction(this, QuickAction.ORIENTATION_VERTICAL, QuickAction.COLOUR_LIGHT);
 
 		ActionItem copyItem = new ActionItem(QUICK_ACTION_COPY, "Copy name", getResources().getDrawable(R.drawable.ic_copy));
-		ActionItem sharetItem = new ActionItem(QUICK_ACTION_SHARE, "Share Item", getResources().getDrawable(R.drawable.ic_envelope));
-		ActionItem viewSourceItem = new ActionItem(QUICK_ACTION_SOURCE, "View in Github", getResources().getDrawable(R.drawable.ic_eye_open));
+		//ActionItem sharetItem = new ActionItem(QUICK_ACTION_SHARE, "Share Item", getResources().getDrawable(R.drawable.ic_envelope));
+		//ActionItem viewSourceItem = new ActionItem(QUICK_ACTION_SOURCE, "View in Github", getResources().getDrawable(R.drawable.ic_eye_open));
 
 		mQuickAction.addActionItem(copyItem);
-		mQuickAction.addActionItem(sharetItem);
-		mQuickAction.addActionItem(viewSourceItem);
+		//mQuickAction.addActionItem(sharetItem);
+		//mQuickAction.addActionItem(viewSourceItem);
 
 		//setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
@@ -334,19 +338,7 @@ public class Main extends SherlockActivity implements OnClickListener{
 			}
 		});
 	}
-
-	@Override
-	public void onClick(View v) {
-		Button b = (Button) v;
-		// You need to set android:cacheColorHint="#00000000" in the 
-		// list xml to make the list background stick.
-		currentBgColour = Color.parseColor(b.getTag().toString());
-		mList.setBackgroundColor(currentBgColour);
-	}
 }
-
-
-
 
 enum MENU_BUTTONS {
 	ABOUT;

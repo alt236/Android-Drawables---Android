@@ -21,9 +21,6 @@ import aws.apps.androidDrawables.adapters.StringResourceAdapter;
 
 public class ResourceReflector {
 	private final String TAG = this.getClass().getName();
-	//	public final static String TYPE_PUBLIC = "android.R";
-	//	public final static String TYPE_INTERNAL = "com.android.internal.R";
-
 	private ListView myList;
 	private Context context;
 
@@ -35,83 +32,71 @@ public class ResourceReflector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int getResourceBoolean(String baseClass, String fullClass) {
-		Class<android.R.drawable> rColor = null;
-
+	private ArrayList<Map<String, Object>> getItemList(String baseClass, String fullClass, boolean bHasPrimitives){
+		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		Class<android.R.drawable> rString = null;
+		Class<?> rClass;
 		try {
-			Class<?> rClass = Class.forName(baseClass);
+			rClass = Class.forName(baseClass);
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
 
-			for (Class<?> subclass : subClassTable) {
+			for (Class<?> subclass : subClassTable) {		
 				if (fullClass.equals(subclass.getCanonicalName())) {
-					rColor = (Class<drawable>) subclass;
-					Field[] colors = rColor.getFields();
+					rString = (Class<drawable>) subclass;
+					Field[] strings = rString.getFields();
 
-					for (Field dr : colors) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("id", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
+					if(bHasPrimitives){
+						for (Field dr : strings) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							// Not pulling this in case its not a primitive.
+							map.put("id", dr.getInt(null)); 
+							map.put("name", dr.getName());
+							map.put("type", fullClass);
+							list.add(map);
+						}
+					}else{
+						for (Field dr : strings) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							// Not pulling this in case its not a primitive.
+							//map.put("id", dr.getInt(null)); 
+							map.put("name", dr.getName());
+							map.put("type", fullClass);
+							list.add(map);
+						}
 					}
 					break; // we are not interested in anything else atm.
 				}
 			}
-			sortList(drInfo);
+		} catch (Exception e) {
+			Log.e(TAG, "^ getItemList() Error while parsing (" + baseClass + "/" +  fullClass + "): ", e);
+		}
+		return list;
+	}
+
+	public int getResourceBoolean(String baseClass, String fullClass) {
+		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		sortList(itemList);
+			sortList(itemList);
+
 			myList.setAdapter(new BooleanResourceAdapter(
 					context,
 					R.layout.listitem, 
-					drInfo));
-
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceBoolean() Error: ", e);
-		}
-		if (rColor != null) {
-			return rColor.getFields().length;
-		} else {
-			return 0;
-		}
+					itemList));
+			
+			return itemList.size();
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public int getResourceColors(String baseClass, String fullClass) {
-		Class<android.R.drawable> rColor = null;
+		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		sortList(itemList);
+			sortList(itemList);
 
-		try {
-			Class<?> rClass = Class.forName(baseClass);
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
-
-			for (Class<?> subclass : subClassTable) {
-				if (fullClass.equals(subclass.getCanonicalName())) {
-					rColor = (Class<drawable>) subclass;
-					Field[] colors = rColor.getFields();
-
-					for (Field dr : colors) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("id", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				}
-			}
-			sortList(drInfo);
 			myList.setAdapter(new ColourResourceAdapter(
 					context,
 					R.layout.listitem_with_image, 
-					drInfo));
-
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceColors() Error: ", e);
-		}
-		if (rColor != null) {
-			return rColor.getFields().length;
-		} else {
-			return 0;
-		}
+					itemList));
+			
+			return itemList.size();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -138,6 +123,7 @@ public class ResourceReflector {
 					break; // we are not interested in anything else atm.
 				}
 			}
+
 			sortList(drInfo);
 
 			myList.setAdapter(new SimpleAdapter(context, drInfo,
@@ -155,125 +141,42 @@ public class ResourceReflector {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public int getResourceGeneric(String baseClass, String fullClass) {
-		Class<android.R.drawable> rString = null;
+		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, false);
+		sortList(itemList);
 
-		try {
-			Class<?> rClass = Class.forName(baseClass);
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+		myList.setAdapter(new SimpleAdapter(context, itemList,
+				R.layout.listitem, 
+				new String[] {"name", "type" }, 
+				new int[] { R.id.string1, R.id.string2 }));
 
-			for (Class<?> subclass : subClassTable) {
-				if (fullClass.equals(subclass.getCanonicalName())) {
-					rString = (Class<drawable>) subclass;
-					Field[] strings = rString.getFields();
-
-					for (Field dr : strings) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						// Not pulling this in case its not a primitive.
-						//map.put("id", dr.getInt(null)); 
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				}
-			}
-			sortList(drInfo);
-
-			myList.setAdapter(new SimpleAdapter(context, drInfo,
-					R.layout.listitem, 
-					new String[] {"name", "type" }, 
-					new int[] { R.id.string1, R.id.string2 }));
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceGeneric() Error: ", e);
-		}
-		if (rString != null) {
-			return rString.getFields().length;
-		} else {
-			return 0;
-		}
+		return itemList.size();
 	}
 
-	@SuppressWarnings("unchecked")
 	public int getResourceInteger(String baseClass, String fullClass) {
-		Class<android.R.drawable> rString = null;
 
-		try {
-			Class<?> rClass = Class.forName(baseClass);
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		sortList(itemList);
+		sortList(itemList);
 
-			for (Class<?> subclass : subClassTable) {
-				if (fullClass.equals(subclass.getCanonicalName())) {
-					rString = (Class<drawable>) subclass;
-					Field[] strings = rString.getFields();
+		myList.setAdapter(new IntegerResourceAdapter(
+				context,
+				R.layout.listitem, 
+				itemList));
 
-					for (Field dr : strings) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("id", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				}
-			}
-			sortList(drInfo);
-
-			myList.setAdapter(new IntegerResourceAdapter(
-					context,
-					R.layout.listitem, 
-					drInfo));
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceInteger() Error: ", e);
-		}
-		if (rString != null) {
-			return rString.getFields().length;
-		} else {
-			return 0;
-		}
+		return itemList.size();
 	}
 
-	@SuppressWarnings("unchecked")
 	public int getResourceStrings(String baseClass, String fullClass) {
-		Class<android.R.drawable> rString = null;
+		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		sortList(itemList);
+		sortList(itemList);
 
-		try {
-			Class<?> rClass = Class.forName(baseClass);
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
-
-			for (Class<?> subclass : subClassTable) {
-				if (fullClass.equals(subclass.getCanonicalName())) {
-					rString = (Class<drawable>) subclass;
-					Field[] strings = rString.getFields();
-
-					for (Field dr : strings) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("id", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				}
-			}
-			sortList(drInfo);
-
-			myList.setAdapter(new StringResourceAdapter(
-					context,
-					R.layout.listitem, 
-					drInfo));
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceStrings() Error: ", e);
-		}
-		if (rString != null) {
-			return rString.getFields().length;
-		} else {
-			return 0;
-		}
+		myList.setAdapter(new StringResourceAdapter(
+				context,
+				R.layout.listitem, 
+				itemList));
+		return itemList.size();
 	}
 
 	public ArrayList<String> getSubClasses(String baseClass) {
