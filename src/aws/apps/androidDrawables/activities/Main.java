@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import aws.apps.androidDrawables.R;
+import aws.apps.androidDrawables.adapters.AbstractResourceAdapter;
 import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.util.UsefulBits;
 
@@ -48,7 +49,8 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	private Spinner mSpinnerLocation;
 	private Spinner mSpinnerResources;
 	private ResourceReflector mReflector;
-	private int currentBgColour;
+	private int mCurrentListBgColour;
+	private int mCurrentListTextColour;
 	private QuickAction mQuickAction;
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
@@ -117,8 +119,23 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		Button b = (Button) v;
 		// You need to set android:cacheColorHint="#00000000" in the 
 		// list xml to make the list background stick.
-		currentBgColour = Color.parseColor(b.getTag().toString());
-		mList.setBackgroundColor(currentBgColour);
+		mCurrentListBgColour = Color.parseColor(b.getTag().toString());
+		
+		if(mCurrentListBgColour == getResources().getColor(R.color.black)){
+			mCurrentListTextColour = getResources().getColor(R.color.holo_blue_light);
+		} 
+		else if(mCurrentListBgColour == getResources().getColor(R.color.white)){
+			mCurrentListTextColour = getResources().getColor(R.color.black);
+		}
+		else {
+			mCurrentListTextColour = getResources().getColor(R.color.default_text_color);
+		}
+		
+		if(mList.getAdapter()!=null && mList.getAdapter() instanceof AbstractResourceAdapter ){
+			((AbstractResourceAdapter) mList.getAdapter()).updateTextColor(mCurrentListTextColour);
+		}
+		
+		mList.setBackgroundColor(mCurrentListBgColour);
 	}
 
 
@@ -129,23 +146,22 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 
 		uB = new UsefulBits(this);
 
-
 		buildUi();
-		final Object data = getLastNonConfigurationInstance();
-
-
-		if (data==null){
-			//			mList = (ListView) findViewById(R.id.main_list);
-			//			currentBgColour = getResources().getColor(R.color.black);
-			//			mList.setBackgroundColor(currentBgColour);
-
-		} else{
-			//			if(mList==null){
-			//				mList = (ListView) findViewById(R.id.main_list);
-			//				}
-			//			currentBgColour = (Integer) data;
-			//			mList.setBackgroundColor(currentBgColour);
-		}
+//		final Object data = getLastNonConfigurationInstance();
+//
+//
+//		if (data==null){
+//			//			mList = (ListView) findViewById(R.id.main_list);
+//			//			currentBgColour = getResources().getColor(R.color.black);
+//			//			mList.setBackgroundColor(currentBgColour);
+//
+//		} else{
+//			//			if(mList==null){
+//			//				mList = (ListView) findViewById(R.id.main_list);
+//			//				}
+//			//			currentBgColour = (Integer) data;
+//			//			mList.setBackgroundColor(currentBgColour);
+//		}
 
 		mReflector = new ResourceReflector(mList, Main.this);
 		populateResourceSpinner(getString(R.string.resource_class_public));
@@ -256,8 +272,9 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return currentBgColour;
+		return mCurrentListBgColour;
 	}
+	
 	private void populateList(String baseClass, String subClass) {
 		int res = 0;
 		boolean bShowColourBar = false;

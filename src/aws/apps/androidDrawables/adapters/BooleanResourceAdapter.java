@@ -7,17 +7,15 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
 
-public class BooleanResourceAdapter extends ArrayAdapter<Map<String, Object>> {
+public class BooleanResourceAdapter extends AbstractResourceAdapter {
 	private final List<Map<String, Object>> items;
 	private final Context context;
 
 	public BooleanResourceAdapter(Context context, int textViewResourceId, List<Map<String, Object>> items) {
 		super(context, textViewResourceId, items);
-		
 		this.items = items;
 		this.context = context;
 	}
@@ -34,11 +32,15 @@ public class BooleanResourceAdapter extends ArrayAdapter<Map<String, Object>> {
 		if (o != null) {			
 			TextView top = (TextView) v.findViewById(R.id.string1);
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
-
-			top.setText((String) o.get("name"));
 			Boolean value = context.getResources().getBoolean((Integer) o.get("id"));
+			
+			top.setText((String) o.get("name"));
 			bottom.setText(String.valueOf(value));
+			
+			top.setTextColor(mTextColour);
+			bottom.setTextColor(mTextColour);
 		}
 		return v;
 	}
+
 }

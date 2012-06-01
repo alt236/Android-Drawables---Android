@@ -7,12 +7,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
 
-public class ColourResourceAdapter extends ArrayAdapter<Map<String, Object>> {
+public class ColourResourceAdapter extends AbstractResourceAdapter {
 	private final List<Map<String, Object>> items;
 	private final Context context;
 
@@ -37,9 +36,13 @@ public class ColourResourceAdapter extends ArrayAdapter<Map<String, Object>> {
 			TextView top = (TextView) v.findViewById(R.id.string1);
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
 			int color= context.getResources().getColor((Integer) o.get("id"));
+			
 			image.setBackgroundColor(color);
 			top.setText((String) o.get("name"));
 			bottom.setText("#" + Integer.toHexString(color).toUpperCase());
+			
+			top.setTextColor(mTextColour);
+			bottom.setTextColor(mTextColour);
 		}
 		return v;
 	}
