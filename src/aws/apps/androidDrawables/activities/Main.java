@@ -124,6 +124,9 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		if(mCurrentListBgColour == getResources().getColor(R.color.white)){
 			mCurrentListTextColour = getResources().getColor(R.color.black);
 		}
+		else if(mCurrentListBgColour == getResources().getColor(R.color.green)){
+			mCurrentListTextColour = getResources().getColor(R.color.black);
+		}
 		else {
 			mCurrentListTextColour = getResources().getColor(R.color.white);
 		}
