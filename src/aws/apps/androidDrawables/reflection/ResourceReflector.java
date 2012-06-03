@@ -12,10 +12,11 @@ import android.R.drawable;
 import android.content.Context;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.adapters.BooleanResourceAdapter;
 import aws.apps.androidDrawables.adapters.ColourResourceAdapter;
+import aws.apps.androidDrawables.adapters.DrawableResourceAdapter;
+import aws.apps.androidDrawables.adapters.GenericResourceAdapter;
 import aws.apps.androidDrawables.adapters.IntegerResourceAdapter;
 import aws.apps.androidDrawables.adapters.StringResourceAdapter;
 
@@ -126,10 +127,9 @@ public class ResourceReflector {
 
 			sortList(drInfo);
 
-			mList.setAdapter(new SimpleAdapter(mContext, drInfo,
-					R.layout.listitem_with_image, 
-					new String[] { "image", "name", "type" }, 
-					new int[] { R.id.icon, R.id.string1, R.id.string2 }));
+			mList.setAdapter(new DrawableResourceAdapter(mContext,
+					R.layout.listitem_with_image,
+					drInfo));
 
 		} catch (Exception e) {
 			Log.e(TAG, "^ getResourceDrawables() Error: ", e);
@@ -145,10 +145,9 @@ public class ResourceReflector {
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, false);
 		sortList(itemList);
 
-		mList.setAdapter(new SimpleAdapter(mContext, itemList,
-				R.layout.listitem, 
-				new String[] {"name", "type" }, 
-				new int[] { R.id.string1, R.id.string2 }));
+		mList.setAdapter(new GenericResourceAdapter(mContext,
+				R.layout.listitem,
+				itemList));
 
 		return itemList.size();
 	}

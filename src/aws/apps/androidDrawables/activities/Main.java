@@ -59,7 +59,7 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	private static final int QUICK_ACTION_SHARE = 2;
 	private static final int QUICK_ACTION_SOURCE = 3;
 	private static final int QUICK_ACTION_COPY_VALUE = 4;
-	
+
 	private void buildUi(){
 		tvOS = (TextView) findViewById(R.id.tvOS);
 
@@ -120,21 +120,18 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		// You need to set android:cacheColorHint="#00000000" in the 
 		// list xml to make the list background stick.
 		mCurrentListBgColour = Color.parseColor(b.getTag().toString());
-		
-		if(mCurrentListBgColour == getResources().getColor(R.color.black)){
-			mCurrentListTextColour = getResources().getColor(R.color.holo_blue_light);
-		} 
-		else if(mCurrentListBgColour == getResources().getColor(R.color.white)){
+
+		if(mCurrentListBgColour == getResources().getColor(R.color.white)){
 			mCurrentListTextColour = getResources().getColor(R.color.black);
 		}
 		else {
-			mCurrentListTextColour = getResources().getColor(R.color.default_text_color);
+			mCurrentListTextColour = getResources().getColor(R.color.white);
 		}
-		
+
 		if(mList.getAdapter()!=null && mList.getAdapter() instanceof AbstractResourceAdapter ){
 			((AbstractResourceAdapter) mList.getAdapter()).updateTextColor(mCurrentListTextColour);
 		}
-		
+
 		mList.setBackgroundColor(mCurrentListBgColour);
 	}
 
@@ -147,21 +144,21 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		uB = new UsefulBits(this);
 
 		buildUi();
-//		final Object data = getLastNonConfigurationInstance();
-//
-//
-//		if (data==null){
-//			//			mList = (ListView) findViewById(R.id.main_list);
-//			//			currentBgColour = getResources().getColor(R.color.black);
-//			//			mList.setBackgroundColor(currentBgColour);
-//
-//		} else{
-//			//			if(mList==null){
-//			//				mList = (ListView) findViewById(R.id.main_list);
-//			//				}
-//			//			currentBgColour = (Integer) data;
-//			//			mList.setBackgroundColor(currentBgColour);
-//		}
+		//		final Object data = getLastNonConfigurationInstance();
+		//
+		//
+		//		if (data==null){
+		//			//			mList = (ListView) findViewById(R.id.main_list);
+		//			//			currentBgColour = getResources().getColor(R.color.black);
+		//			//			mList.setBackgroundColor(currentBgColour);
+		//
+		//		} else{
+		//			//			if(mList==null){
+		//			//				mList = (ListView) findViewById(R.id.main_list);
+		//			//				}
+		//			//			currentBgColour = (Integer) data;
+		//			//			mList.setBackgroundColor(currentBgColour);
+		//		}
 
 		mReflector = new ResourceReflector(mList, Main.this);
 		populateResourceSpinner(getString(R.string.resource_class_public));
@@ -226,7 +223,7 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	public void onItemClick(QuickAction source, int pos, int actionId) {
 		//ActionItem actionItem = quickAction.getActionItem(pos);
 		HashMap<String, Object> selection;
-		
+
 		switch(actionId){
 		case QUICK_ACTION_COPY_NAME:
 			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
@@ -239,14 +236,14 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 			}
 			break;
 		case QUICK_ACTION_COPY_VALUE:
-//			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
-//
-//			if(selection != null){
-//				Object name = selection.get("name");
-//				if(name!=null){
-//					uB.copyText((String) name);
-//				}
-//			}
+			//			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
+			//
+			//			if(selection != null){
+			//				Object name = selection.get("name");
+			//				if(name!=null){
+			//					uB.copyText((String) name);
+			//				}
+			//			}
 			Toast.makeText(getApplicationContext(), "copy value item selected", Toast.LENGTH_SHORT).show();
 			break;			
 		case QUICK_ACTION_SHARE:
@@ -257,7 +254,7 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 			break;
 		default:
 		}
-		
+
 	}
 
 	/** Handles item selections */
@@ -274,7 +271,7 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	public Object onRetainNonConfigurationInstance() {
 		return mCurrentListBgColour;
 	}
-	
+
 	private void populateList(String baseClass, String subClass) {
 		int res = 0;
 		boolean bShowColourBar = false;
