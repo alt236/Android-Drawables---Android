@@ -842,6 +842,11 @@ containing a value of this type.
         public static final int menu_ok=0x7f02006f;
         public static final int menu_search=0x7f020070;
         public static final int menu_up_arrow=0x7f020071;
+        public static final int tab_bg_black=0x7f020072;
+        public static final int tab_bg_gray=0x7f020073;
+        public static final int tab_bg_green=0x7f020074;
+        public static final int tab_bg_orange=0x7f020075;
+        public static final int tab_bg_white=0x7f020076;
     }
     public static final class id {
         public static final int abs__action_bar=0x7f070022;

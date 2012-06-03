@@ -31,10 +31,23 @@ public class UsefulBits {
 		return calendar;
 	}
 
+	@SuppressWarnings("deprecation")
+	public void copyText(String text) {
+		String message = "'" + text +  "' " + c.getString(R.string.text_copied);
+
+		try{
+			android.text.ClipboardManager ClipMan = (android.text.ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
+			ClipMan.setText(text);
+			showToast(message, Toast.LENGTH_SHORT, Gravity.TOP,0,0);
+		}catch(Exception e){
+			Log.e(TAG, "^ copyText() error: " + e.getMessage());
+		}
+	} 
+
 	public String formatDateTime(String formatString, Date d){
 		Format formatter = new SimpleDateFormat(formatString);
 		return formatter.format(d);
-	} 
+	}
 
 	public String getAppVersion(){
 		PackageInfo pi;
@@ -106,18 +119,5 @@ public class UsefulBits {
 		Toast toast = Toast.makeText(c.getApplicationContext(), message, duration);
 		toast.setGravity(location,x_offset,y_offset);
 		toast.show();
-	}
-
-	@SuppressWarnings("deprecation")
-	public void copyText(String text) {
-		String message = "'" + text +  "' " + c.getString(R.string.text_copied);
-
-		try{
-			android.text.ClipboardManager ClipMan = (android.text.ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipMan.setText(text);
-			showToast(message, Toast.LENGTH_SHORT, Gravity.TOP,0,0);
-		}catch(Exception e){
-			Log.e(TAG, "^ copyText() error: " + e.getMessage());
-		}
 	}
 }
