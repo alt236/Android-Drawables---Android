@@ -44,11 +44,6 @@ public class UsefulBits {
 		}
 	} 
 
-	public String formatDateTime(String formatString, Date d){
-		Format formatter = new SimpleDateFormat(formatString);
-		return formatter.format(d);
-	}
-
 	public String getAppVersion(){
 		PackageInfo pi;
 		try {
