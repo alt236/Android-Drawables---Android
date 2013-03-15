@@ -1,9 +1,6 @@
 package aws.apps.androidDrawables.util;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import android.app.AlertDialog;
 import android.content.Context;

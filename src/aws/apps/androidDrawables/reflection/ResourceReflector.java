@@ -29,11 +29,43 @@ public class ResourceReflector {
 		super();
 		this.mList = myList;
 		this.mContext = context;
-
 	}
 
 	@SuppressWarnings("unchecked")
-	private ArrayList<Map<String, Object>> getItemList(String baseClass, String fullClass, boolean bHasPrimitives){
+	public List<Map<String, Object>> getDrawableList(String baseClass, String fullClass){
+		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		Class<android.R.drawable> rDrawable = null;
+		try {
+			Class<?> rClass = Class.forName(baseClass);
+			Class<?>[] subClassTable = rClass.getDeclaredClasses();
+
+			for (Class<?> subclass : subClassTable) {
+				//Log.d(TAG, "SUBCLASS! " + subclass);
+				
+				if (fullClass.equals(subclass.getCanonicalName())) {
+					rDrawable = (Class<drawable>) subclass;
+					Field[] drawables = rDrawable.getFields();
+
+					for (Field dr : drawables) {
+						//Log.d(TAG, "DRAWABLE! " + dr);
+						
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("image", dr.getInt(null));
+						map.put("name", dr.getName());
+						map.put("type", fullClass);
+						list.add(map);
+					}
+					break; // we are not interested in anything else atm.
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "^ getDrawableList() Error while parsing (" + baseClass + "/" +  fullClass + "): ", e);
+		}
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<Map<String, Object>> getItemList(String baseClass, String fullClass, boolean bHasPrimitives){
 		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		Class<android.R.drawable> rString = null;
 		Class<?> rClass;
@@ -74,7 +106,9 @@ public class ResourceReflector {
 		return list;
 	}
 
-	public int getResourceBoolean(String baseClass, String fullClass) {
+	public int populateResourceBoolean(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
@@ -86,7 +120,10 @@ public class ResourceReflector {
 		return itemList.size();
 	}
 
-	public int getResourceColors(String baseClass, String fullClass) {
+
+	public int populateResourceColors(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
@@ -98,48 +135,23 @@ public class ResourceReflector {
 		return itemList.size();
 	}
 
-	@SuppressWarnings("unchecked")
-	public int getResourceDrawables(String baseClass, String fullClass) {
-		Class<android.R.drawable> rDrawable = null;
+	public int populateResourceDrawables(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
+		List<Map<String, Object>> itemList = getDrawableList(baseClass, fullClass);
+		sortList(itemList);
 
-		try {
-			Class<?> rClass = Class.forName(baseClass);
-			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-			List<Map<String, Object>> drInfo = new ArrayList<Map<String, Object>>();
+		mList.setAdapter(new DrawableResourceAdapter(
+				mContext,
+				R.layout.listitem_with_image,
+				itemList));
 
-			for (Class<?> subclass : subClassTable) {
-				if (fullClass.equals(subclass.getCanonicalName())) {
-					rDrawable = (Class<drawable>) subclass;
-					Field[] drawables = rDrawable.getFields();
-
-					for (Field dr : drawables) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("image", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						drInfo.add(map);
-					}
-					break; // we are not interested in anything else atm.
-				}
-			}
-
-			sortList(drInfo);
-
-			mList.setAdapter(new DrawableResourceAdapter(mContext,
-					R.layout.listitem_with_image,
-					drInfo));
-
-		} catch (Exception e) {
-			Log.e(TAG, "^ getResourceDrawables() Error: ", e);
-		}
-		if (rDrawable != null) {
-			return rDrawable.getFields().length;
-		} else {
-			return 0;
-		}
+		return itemList.size();
 	}
 
-	public int getResourceGeneric(String baseClass, String fullClass) {
+	public int populateResourceGeneric(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, false);
 		sortList(itemList);
 
@@ -150,8 +162,9 @@ public class ResourceReflector {
 		return itemList.size();
 	}
 
-	public int getResourceInteger(String baseClass, String fullClass) {
-
+	public int populateResourceInteger(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
@@ -163,7 +176,9 @@ public class ResourceReflector {
 		return itemList.size();
 	}
 
-	public int getResourceStrings(String baseClass, String fullClass) {
+	public int populateResourceStrings(String baseClass, String fullClass) {
+		if(mList == null){return -1;}
+		
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 

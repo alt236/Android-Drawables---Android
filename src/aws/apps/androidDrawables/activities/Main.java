@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.SyncStateContract.Constants;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,7 +36,6 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class Main extends SherlockActivity implements OnClickListener, OnActionItemClickListener{
 	private final String TAG =  this.getClass().getName();
-
 	private UsefulBits uB;
 	private ListView mList;
 	private Button btnBlack;
@@ -58,6 +56,12 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
+	private final String[] EXPORTABLE_TYPES = new String[]{
+		//ExportIntentService.EXPORTABLE_TYPE_COLOR,
+		ExportIntentService.EXPORTABLE_TYPE_DRAWABLE,
+		//ExportIntentService.EXPORTABLE_TYPE_STRING
+	};
+	
 	private static final int QUICK_ACTION_COPY_NAME = 1;
 	private static final int QUICK_ACTION_SHARE = 2;
 	private static final int QUICK_ACTION_SOURCE = 3;
@@ -245,7 +249,7 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 			uB.showAboutDialogue();
 			return true;
 		} else if (R.id.menu_export == item.getItemId()){
-			startExportService("Location", "Name");
+			startExportService(locationString2Type.get(mSpinnerLocation.getSelectedItem().toString()), EXPORTABLE_TYPES);
 			return true;
 		}
 		return false;
@@ -270,41 +274,41 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		if(subClass.endsWith(".drawable")){
 			Log.i(TAG, "^ Populating list with drawables");
 			bShowColourBar = true;
-			res = mReflector.getResourceDrawables(
+			res = mReflector.populateResourceDrawables(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".color")){
 			Log.i(TAG, "^ Populating list with colours");
 			bShowColourBar = true;
-			res = mReflector.getResourceColors(
+			res = mReflector.populateResourceColors(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".bool")){
 			Log.i(TAG, "^ Populating list with boolean");
-			res = mReflector.getResourceBoolean(
+			res = mReflector.populateResourceBoolean(
 					baseClass, 
 					subClass);
 		}
 		else if(subClass.endsWith(".integer")){
 			Log.i(TAG, "^ Populating list with integers");
-			res = mReflector.getResourceInteger(
+			res = mReflector.populateResourceInteger(
 					baseClass, 
 					subClass);
 		}else if(subClass.endsWith(".string")){
 			Log.i(TAG, "^ Populating list with strings");
-			res = mReflector.getResourceStrings(
+			res = mReflector.populateResourceStrings(
 					baseClass, 
 					subClass);
 		}else{
 			Log.i(TAG, "^ Populating list with generic data");
-			res = mReflector.getResourceGeneric(
+			res = mReflector.populateResourceGeneric(
 					baseClass, 
 					subClass);
 		}
 
-		if(bShowColourBar){
+		if(bShowColourBar && res > 0){
 			mColourButtonSegment.setVisibility(View.VISIBLE);
 		}else{
 			mColourButtonSegment.setVisibility(View.GONE);
@@ -351,13 +355,13 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		mQuickAction.setOnActionItemClickListener(this);
 	}
 	
-	private  void startExportService(String location, String resourceName){
-		Log.d(TAG, "^ About to start EIS");
+	private  void startExportService(String location, String[] resourceNames){
+		Toast.makeText(this, R.string.toast_export_service_started, Toast.LENGTH_SHORT).show();
 		
 		Intent intent = new Intent(this, ExportIntentService.class);
 		
 		intent.putExtra(ExportIntentService.EXTRA_R_LOCATION, location);
-		intent.putExtra(ExportIntentService.EXTRA_RESOURCE_NAME, resourceName);
+		intent.putExtra(ExportIntentService.EXTRA_RESOURCE_NAMES, resourceNames);
 		
 		startService(intent);
 	}

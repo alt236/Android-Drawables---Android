@@ -1015,6 +1015,7 @@ containing a value of this type.
         public static final int resources_internal=0x7f050021;
         public static final int resources_public=0x7f050020;
         public static final int text_copied=0x7f050016;
+        public static final int toast_export_service_started=0x7f050024;
         public static final int white=0x7f050017;
     }
     public static final class style {
