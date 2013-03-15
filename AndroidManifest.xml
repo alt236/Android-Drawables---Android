@@ -5,7 +5,7 @@
     android:versionName="0.0.7" >
 
     <uses-sdk
-        android:minSdkVersion="4"
+        android:minSdkVersion="5"
         android:targetSdkVersion="17" />
 
     <application
@@ -13,7 +13,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".activities.Main"
+            android:name="aws.apps.androidDrawables.activities.Main"
             android:label="@string/app_name"
             android:theme="@style/Theme.Sherlock.ForceOverflow" >
             <intent-filter>
@@ -22,6 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name="aws.apps.androidDrawables.services.ExportIntentService" />
     </application>
 
 </manifest>

@@ -7,9 +7,11 @@ import java.util.Hashtable;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import net.londatiga.android.QuickAction.OnActionItemClickListener;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.SyncStateContract.Constants;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.adapters.AbstractResourceAdapter;
 import aws.apps.androidDrawables.reflection.ResourceReflector;
+import aws.apps.androidDrawables.services.ExportIntentService;
 import aws.apps.androidDrawables.util.UsefulBits;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -147,21 +150,6 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		uB = new UsefulBits(this);
 
 		buildUi();
-		//		final Object data = getLastNonConfigurationInstance();
-		//
-		//
-		//		if (data==null){
-		//			//			mList = (ListView) findViewById(R.id.main_list);
-		//			//			currentBgColour = getResources().getColor(R.color.black);
-		//			//			mList.setBackgroundColor(currentBgColour);
-		//
-		//		} else{
-		//			//			if(mList==null){
-		//			//				mList = (ListView) findViewById(R.id.main_list);
-		//			//				}
-		//			//			currentBgColour = (Integer) data;
-		//			//			mList.setBackgroundColor(currentBgColour);
-		//		}
 
 		mReflector = new ResourceReflector(mList, Main.this);
 		populateResourceSpinner(getString(R.string.resource_class_public));
@@ -220,7 +208,6 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		return true;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onItemClick(QuickAction source, int pos, int actionId) {
@@ -239,14 +226,6 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 			}
 			break;
 		case QUICK_ACTION_COPY_VALUE:
-			//			selection = (HashMap<String, Object>) mList.getItemAtPosition(pos);
-			//
-			//			if(selection != null){
-			//				Object name = selection.get("name");
-			//				if(name!=null){
-			//					uB.copyText((String) name);
-			//				}
-			//			}
 			Toast.makeText(getApplicationContext(), "copy value item selected", Toast.LENGTH_SHORT).show();
 			break;			
 		case QUICK_ACTION_SHARE:
@@ -265,10 +244,12 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		if(R.id.menu_about == item.getItemId()){
 			uB.showAboutDialogue();
 			return true;
+		} else if (R.id.menu_export == item.getItemId()){
+			startExportService("Location", "Name");
+			return true;
 		}
 		return false;
 	}
-
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
@@ -369,4 +350,16 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		//setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(this);
 	}
+	
+	private  void startExportService(String location, String resourceName){
+		Log.d(TAG, "^ About to start EIS");
+		
+		Intent intent = new Intent(this, ExportIntentService.class);
+		
+		intent.putExtra(ExportIntentService.EXTRA_R_LOCATION, location);
+		intent.putExtra(ExportIntentService.EXTRA_RESOURCE_NAME, resourceName);
+		
+		startService(intent);
+	}
+	
 }

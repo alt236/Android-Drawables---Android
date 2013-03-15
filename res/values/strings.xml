@@ -28,9 +28,9 @@
 	</string>
 	
 	<string name="label_menu_about">About</string>
+	<string name="label_menu_export">Export</string>
+	
     <string name="os">OS:</string>
-
-    
     <string name="ok">OK</string>
     <string name="text_copied">copied.</string>
     	
