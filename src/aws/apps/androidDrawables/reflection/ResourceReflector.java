@@ -77,27 +77,25 @@ public class ResourceReflector {
 	public int getResourceBoolean(String baseClass, String fullClass) {
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
-			sortList(itemList);
 
-			mList.setAdapter(new BooleanResourceAdapter(
-					mContext,
-					R.layout.listitem, 
-					itemList));
-			
-			return itemList.size();
+		mList.setAdapter(new BooleanResourceAdapter(
+				mContext,
+				R.layout.listitem, 
+				itemList));
+
+		return itemList.size();
 	}
 
 	public int getResourceColors(String baseClass, String fullClass) {
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
-			sortList(itemList);
 
-			mList.setAdapter(new ColourResourceAdapter(
-					mContext,
-					R.layout.listitem_with_image, 
-					itemList));
-			
-			return itemList.size();
+		mList.setAdapter(new ColourResourceAdapter(
+				mContext,
+				R.layout.listitem_with_image, 
+				itemList));
+
+		return itemList.size();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -156,7 +154,6 @@ public class ResourceReflector {
 
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
-		sortList(itemList);
 
 		mList.setAdapter(new IntegerResourceAdapter(
 				mContext,
@@ -168,7 +165,6 @@ public class ResourceReflector {
 
 	public int getResourceStrings(String baseClass, String fullClass) {
 		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
-		sortList(itemList);
 		sortList(itemList);
 
 		mList.setAdapter(new StringResourceAdapter(
