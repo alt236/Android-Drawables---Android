@@ -21,7 +21,7 @@ public class Exporter {
 		//Log.d(TAG, "^ saveDrawableToFile() - Saving " +drawableId+ " to " + saveAs);
 
 		if(drawableId != null && drawableId > 0){
-			if(isExternalStorageReadable()){
+			if(isExternalStorageWritable()){
 				FileOutputStream outStream;
 
 				Bitmap bm = BitmapFactory.decodeResource( context.getResources(), drawableId);
@@ -52,10 +52,9 @@ public class Exporter {
 		return res;
 	}
 
-	public boolean isExternalStorageReadable() {
+	public boolean isExternalStorageWritable() {
 		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state) ||
-				Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			return true;
 		}
 		return false;
