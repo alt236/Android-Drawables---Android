@@ -1,7 +1,6 @@
 package aws.apps.androidDrawables.adapters;
 
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,12 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import aws.apps.androidDrawables.R;
+import aws.apps.androidDrawables.containers.ResourceInfo;
 
 public class IntegerResourceAdapter extends AbstractResourceAdapter {
-	private final List<Map<String, Object>> items;
+	private final List<ResourceInfo> items;
 	private final Context context;
 
-	public IntegerResourceAdapter(Context context, int textViewResourceId, List<Map<String, Object>> items) {
+	public IntegerResourceAdapter(Context context, int textViewResourceId, List<ResourceInfo> items) {
 		super(context, textViewResourceId, items);
 		
 		this.items = items;
@@ -29,13 +29,13 @@ public class IntegerResourceAdapter extends AbstractResourceAdapter {
 			v = vi.inflate(R.layout.listitem, null);
 		}
 
-		Map<String, Object> o = items.get(position);
+		ResourceInfo o = items.get(position);
 		if (o != null) {			
 			TextView top = (TextView) v.findViewById(R.id.string1);
 			TextView bottom = (TextView) v.findViewById(R.id.string2);
 
-			top.setText((String) o.get("name"));
-			int value = context.getResources().getInteger((Integer) o.get("id"));
+			top.setText(o.getName());
+			int value = context.getResources().getInteger(o.getId());
 			bottom.setText(String.valueOf(value));
 			
 			top.setTextColor(mTextColour);

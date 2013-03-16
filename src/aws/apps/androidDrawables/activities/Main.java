@@ -57,9 +57,9 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
 	private final String[] EXPORTABLE_TYPES = new String[]{
-		//ExportIntentService.EXPORTABLE_TYPE_COLOR,
+		ExportIntentService.EXPORTABLE_TYPE_COLOR,
 		ExportIntentService.EXPORTABLE_TYPE_DRAWABLE,
-		//ExportIntentService.EXPORTABLE_TYPE_STRING
+		ExportIntentService.EXPORTABLE_TYPE_STRING
 	};
 	
 	private static final int QUICK_ACTION_COPY_NAME = 1;

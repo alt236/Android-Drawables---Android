@@ -2,7 +2,6 @@ package aws.apps.androidDrawables.services;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -19,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.activities.Main;
+import aws.apps.androidDrawables.containers.ResourceInfo;
 import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.util.Exporter;
 
@@ -151,7 +151,7 @@ public class ExportIntentService extends IntentService {
 		final String fullClass = location + ".drawable";
 		final String targetPath = basePath + fullClass + File.separator;
 	
-		List<Map<String, Object>> itemList = reflector.getDrawableList(location, fullClass);
+		List<ResourceInfo> itemList = reflector.getDrawableList(location, fullClass);
 
 		Log.d(TAG, "doExportDrawables() - Location: " + location + ", fullClass: " + fullClass);
 		Log.d(TAG, "^ doExportDrawables() - Exporting " + itemList.size() + " drawables to " + targetPath);
@@ -160,12 +160,14 @@ public class ExportIntentService extends IntentService {
 		long count = 0;
 		String iconName;
 		
-		for(Map<String, Object> item : itemList){
-			iconName = (String) item.get("name");
-			sendNotification("Starting Export", "Exporting: " + iconName);
-			res = mExporter.saveDrawableToFile(this, (Integer) item.get("image"), targetPath + iconName + ".png");
-			if (res){
-				count +=1;
+		for(ResourceInfo item : itemList){
+			iconName = (String) item.getName();
+			if(iconName != null && item.getId() >0){
+				sendNotification("Exporting Drawables", iconName);
+				res = mExporter.saveDrawableToFile(this, (Integer) item.getId(), targetPath + iconName + ".png");
+				if (res){
+					count +=1;
+				}
 			}
 		}	
 		

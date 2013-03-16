@@ -4,9 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.R.drawable;
 import android.content.Context;
@@ -19,6 +17,7 @@ import aws.apps.androidDrawables.adapters.DrawableResourceAdapter;
 import aws.apps.androidDrawables.adapters.GenericResourceAdapter;
 import aws.apps.androidDrawables.adapters.IntegerResourceAdapter;
 import aws.apps.androidDrawables.adapters.StringResourceAdapter;
+import aws.apps.androidDrawables.containers.ResourceInfo;
 
 public class ResourceReflector {
 	private final String TAG = this.getClass().getName();
@@ -32,28 +31,21 @@ public class ResourceReflector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> getDrawableList(String baseClass, String fullClass){
-		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+	public List<ResourceInfo> getDrawableList(String baseClass, String fullClass){
+		ArrayList<ResourceInfo> list = new ArrayList<ResourceInfo>();
 		Class<android.R.drawable> rDrawable = null;
 		try {
 			Class<?> rClass = Class.forName(baseClass);
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-
-			for (Class<?> subclass : subClassTable) {
-				//Log.d(TAG, "SUBCLASS! " + subclass);
-				
+			ResourceInfo resourceInfo;
+			for (Class<?> subclass : subClassTable) {				
 				if (fullClass.equals(subclass.getCanonicalName())) {
 					rDrawable = (Class<drawable>) subclass;
 					Field[] drawables = rDrawable.getFields();
 
 					for (Field dr : drawables) {
-						//Log.d(TAG, "DRAWABLE! " + dr);
-						
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("image", dr.getInt(null));
-						map.put("name", dr.getName());
-						map.put("type", fullClass);
-						list.add(map);
+						resourceInfo = new ResourceInfo(dr.getInt(null), dr.getName(), fullClass);
+						list.add(resourceInfo);
 					}
 					break; // we are not interested in anything else atm.
 				}
@@ -65,14 +57,15 @@ public class ResourceReflector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<Map<String, Object>> getItemList(String baseClass, String fullClass, boolean bHasPrimitives){
-		ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+	public ArrayList<ResourceInfo> getItemList(String baseClass, String fullClass, boolean bHasPrimitives){
+		ArrayList<ResourceInfo> list = new ArrayList<ResourceInfo>();
 		Class<android.R.drawable> rString = null;
 		Class<?> rClass;
 		try {
 			rClass = Class.forName(baseClass);
 			Class<?>[] subClassTable = rClass.getDeclaredClasses();
-
+			ResourceInfo resourceInfo;
+			
 			for (Class<?> subclass : subClassTable) {		
 				if (fullClass.equals(subclass.getCanonicalName())) {
 					rString = (Class<drawable>) subclass;
@@ -80,21 +73,13 @@ public class ResourceReflector {
 
 					if(bHasPrimitives){
 						for (Field dr : strings) {
-							Map<String, Object> map = new HashMap<String, Object>();
-							// Not pulling this in case its not a primitive.
-							map.put("id", dr.getInt(null)); 
-							map.put("name", dr.getName());
-							map.put("type", fullClass);
-							list.add(map);
+							resourceInfo = new ResourceInfo(dr.getInt(null), dr.getName(), fullClass);
+							list.add(resourceInfo);
 						}
 					}else{
 						for (Field dr : strings) {
-							Map<String, Object> map = new HashMap<String, Object>();
-							// Not pulling this in case its not a primitive.
-							//map.put("id", dr.getInt(null)); 
-							map.put("name", dr.getName());
-							map.put("type", fullClass);
-							list.add(map);
+							resourceInfo = new ResourceInfo(dr.getName(), fullClass);
+							list.add(resourceInfo);
 						}
 					}
 					break; // we are not interested in anything else atm.
@@ -109,7 +94,7 @@ public class ResourceReflector {
 	public int populateResourceBoolean(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		List<ResourceInfo> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
 		mList.setAdapter(new BooleanResourceAdapter(
@@ -124,7 +109,7 @@ public class ResourceReflector {
 	public int populateResourceColors(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		List<ResourceInfo> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
 		mList.setAdapter(new ColourResourceAdapter(
@@ -138,7 +123,7 @@ public class ResourceReflector {
 	public int populateResourceDrawables(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getDrawableList(baseClass, fullClass);
+		List<ResourceInfo> itemList = getDrawableList(baseClass, fullClass);
 		sortList(itemList);
 
 		mList.setAdapter(new DrawableResourceAdapter(
@@ -152,7 +137,7 @@ public class ResourceReflector {
 	public int populateResourceGeneric(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, false);
+		List<ResourceInfo> itemList = getItemList(baseClass, fullClass, false);
 		sortList(itemList);
 
 		mList.setAdapter(new GenericResourceAdapter(mContext,
@@ -165,7 +150,7 @@ public class ResourceReflector {
 	public int populateResourceInteger(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		List<ResourceInfo> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
 		mList.setAdapter(new IntegerResourceAdapter(
@@ -179,7 +164,7 @@ public class ResourceReflector {
 	public int populateResourceStrings(String baseClass, String fullClass) {
 		if(mList == null){return -1;}
 		
-		List<Map<String, Object>> itemList = getItemList(baseClass, fullClass, true);
+		List<ResourceInfo> itemList = getItemList(baseClass, fullClass, true);
 		sortList(itemList);
 
 		mList.setAdapter(new StringResourceAdapter(
@@ -206,12 +191,11 @@ public class ResourceReflector {
 		return subClassList;
 	}
 
-	private void sortList(List<Map<String, Object>> list) {
-		Collections.sort(list, new Comparator<Map<String, Object>>() {
+	private void sortList(List<ResourceInfo> list) {
+		Collections.sort(list, new Comparator<ResourceInfo>() {
 			@Override
-			public int compare(Map<String, Object> lhs, Map<String, Object> rhs) {
-				return ((String) lhs.get("name"))
-						.compareToIgnoreCase((String) rhs.get("name"));
+			public int compare(ResourceInfo lhs, ResourceInfo rhs) {
+				return lhs.getName().compareToIgnoreCase(rhs.getName());
 			}
 		});
 	}

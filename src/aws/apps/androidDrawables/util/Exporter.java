@@ -18,7 +18,7 @@ public class Exporter {
 
 	public boolean saveDrawableToFile(Context context, Integer drawableId, String saveAs){
 		boolean res = false;
-		Log.d(TAG, "^ saveDrawableToFile() - Saving " +drawableId+ " to " + saveAs);
+		//Log.d(TAG, "^ saveDrawableToFile() - Saving " +drawableId+ " to " + saveAs);
 
 		if(drawableId != null && drawableId > 0){
 			if(isExternalStorageReadable()){
