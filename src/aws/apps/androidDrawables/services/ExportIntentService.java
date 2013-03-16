@@ -23,9 +23,6 @@ import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.util.Exporter;
 
 public class ExportIntentService extends IntentService {
-	public static final String EXPORTABLE_TYPE_STRING = "string";
-	public static final String EXPORTABLE_TYPE_COLOR = "color";
-	public static final String EXPORTABLE_TYPE_DRAWABLE = "drawable";
 	public static final String EXPORT_BASE_PATH = "AndroidResources";
 
 	private static final int NOTIFICATION_ID = 1;
@@ -127,17 +124,17 @@ public class ExportIntentService extends IntentService {
 
 		String exportPath  = sdPath + File.separator + EXPORT_BASE_PATH + File.separator;
 		long count = 0;
-		
+
 		for(String type : resourceNames){
 			if(hasUserCancelled()){break;}
-			
+
 			sendNotification("Starting Export", "Exporting: " + type);
-			if(EXPORTABLE_TYPE_COLOR.equals(type)){
-
-			} else if (EXPORTABLE_TYPE_DRAWABLE.equals(type)){
+			if(Exporter.EXPORTABLE_TYPE_COLOR.equals(type)){
+				count += doExportColors(location, exportPath);
+			} else if (Exporter.EXPORTABLE_TYPE_DRAWABLE.equals(type)){
 				count += doExportDrawables(location, exportPath);
-			} else if (EXPORTABLE_TYPE_STRING.equals(type)){
-
+			} else if (Exporter.EXPORTABLE_TYPE_STRING.equals(type)){
+				count += doExportStrings(location, exportPath);
 			}
 		}
 
@@ -150,16 +147,14 @@ public class ExportIntentService extends IntentService {
 		final ResourceReflector reflector = new ResourceReflector(null, this);
 		final String fullClass = location + ".drawable";
 		final String targetPath = basePath + fullClass + File.separator;
-	
-		List<ResourceInfo> itemList = reflector.getDrawableList(location, fullClass);
 
-		Log.d(TAG, "doExportDrawables() - Location: " + location + ", fullClass: " + fullClass);
-		Log.d(TAG, "^ doExportDrawables() - Exporting " + itemList.size() + " drawables to " + targetPath);
+		List<ResourceInfo> itemList = reflector.getDrawableList(location, fullClass);
+		Log.d(TAG, "^ doExportDrawables() - Exporting " + itemList.size() + " items to " + targetPath);
 
 		boolean res;
 		long count = 0;
 		String iconName;
-		
+
 		for(ResourceInfo item : itemList){
 			iconName = (String) item.getName();
 			if(iconName != null && item.getId() >0){
@@ -170,14 +165,53 @@ public class ExportIntentService extends IntentService {
 				}
 			}
 		}	
-		
+
 		return count;
 	}
 
+	private long doExportColors(String location, final String basePath){
 
+		final ResourceReflector reflector = new ResourceReflector(null, this);
+		final String fullClass = location + ".color";
+		final String targetPath = basePath + fullClass + File.separator;
+
+		List<ResourceInfo> itemList = reflector.getItemList(location, fullClass, true);
+		Log.d(TAG, "^ doExportColors() - Exporting " + itemList.size() + " items to " + targetPath);
+
+		sendNotification("Exporting Colors", "");
+		String colorsString = mExporter.getXmlString(this, itemList);
+
+		boolean res = mExporter.writeStringToExternalStorage(colorsString, targetPath + "colors.xml");
+
+		if(res){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+	private long doExportStrings(String location, final String basePath){
+
+		final ResourceReflector reflector = new ResourceReflector(null, this);
+		final String fullClass = location + ".string";
+		final String targetPath = basePath + fullClass + File.separator;
+
+		List<ResourceInfo> itemList = reflector.getItemList(location, fullClass, true);
+		Log.i(TAG, "^ doExportStrings() - Exporting " + itemList.size() + " items to " + targetPath);
+
+		sendNotification("Exporting Strings", "");
+		String xml = mExporter.getXmlString(this, itemList);
+
+		boolean res = mExporter.writeStringToExternalStorage(xml, targetPath + "strings.xml");
+
+		if(res){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
 	private void sendNotification(String title, String content){
-		//NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		Log.d(TAG, "^ sendNotification() - " + title + "  |||  " + content);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
 		.setSmallIcon(R.drawable.ic_launcher)
 		.setContentTitle(title)
@@ -202,7 +236,6 @@ public class ExportIntentService extends IntentService {
 						PendingIntent.FLAG_UPDATE_CURRENT);
 		builder.setContentIntent(resultPendingIntent);
 
-		// NOTIFICATION_ID allows you to update the notification later on.
 		mNotificationManager.notify(NOTIFICATION_ID,  builder.getNotification());
 	}
 }

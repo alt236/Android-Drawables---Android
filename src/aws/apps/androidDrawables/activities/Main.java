@@ -27,6 +27,7 @@ import aws.apps.androidDrawables.R;
 import aws.apps.androidDrawables.adapters.AbstractResourceAdapter;
 import aws.apps.androidDrawables.reflection.ResourceReflector;
 import aws.apps.androidDrawables.services.ExportIntentService;
+import aws.apps.androidDrawables.util.Exporter;
 import aws.apps.androidDrawables.util.UsefulBits;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -57,9 +58,9 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 	private final Hashtable<CharSequence, String> locationString2Type = new Hashtable<CharSequence, String>();
 
 	private final String[] EXPORTABLE_TYPES = new String[]{
-		ExportIntentService.EXPORTABLE_TYPE_COLOR,
-		ExportIntentService.EXPORTABLE_TYPE_DRAWABLE,
-		ExportIntentService.EXPORTABLE_TYPE_STRING
+		Exporter.EXPORTABLE_TYPE_COLOR,
+		Exporter.EXPORTABLE_TYPE_DRAWABLE,
+		Exporter.EXPORTABLE_TYPE_STRING
 	};
 	
 	private static final int QUICK_ACTION_COPY_NAME = 1;
