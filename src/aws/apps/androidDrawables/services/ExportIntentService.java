@@ -32,7 +32,7 @@ public class ExportIntentService extends IntentService {
 	public static final String BROADCAST_COMPLETED = "aws.apps.androidDrawables.service.ExportIntentService.BROADCAST_COMPLETED";
 	public static final String BROADCAST_REQUEST_CANCELATION = "aws.apps.androidDrawables.service.ExportIntentService.BROADCAST_REQUEST_CANCELATION";
 
-	public static final String EXTRA_R_LOCATION = "EXTRA_R_LOCATION";
+	public static final String EXTRA_R_LOCATIONS = "EXTRA_R_LOCATIONS";
 	public static final String EXTRA_RESOURCE_NAMES = "EXTRA_RESOURCE_NAMES";
 
 	private static boolean isRunning = false;
@@ -83,11 +83,11 @@ public class ExportIntentService extends IntentService {
 		Bundle b = intent.getExtras();
 
 		if(b != null){
-			String location = b.getString(EXTRA_R_LOCATION);
+			String[] locations = b.getStringArray(EXTRA_R_LOCATIONS);
 			String[] resourceNames = b.getStringArray(EXTRA_RESOURCE_NAMES);
 
-			if(location != null && resourceNames != null && resourceNames.length > 0){
-				performExport(location, resourceNames);
+			if(locations != null && locations.length > 0 && resourceNames != null && resourceNames.length > 0){
+				performExport(locations, resourceNames);
 			} else {
 				sendNotification("Export Error", "Nothing was exported...");
 			}
@@ -117,7 +117,7 @@ public class ExportIntentService extends IntentService {
 
 
 
-	private void performExport(String location, String[] resourceNames){
+	private void performExport(String[] locations, String[] resourceNames){
 		final String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 
 		mExporter = new Exporter();
@@ -126,15 +126,18 @@ public class ExportIntentService extends IntentService {
 		long count = 0;
 
 		for(String type : resourceNames){
-			if(hasUserCancelled()){break;}
 
-			sendNotification("Starting Export", "Exporting: " + type);
-			if(Exporter.EXPORTABLE_TYPE_COLOR.equals(type)){
-				count += doExportColors(location, exportPath);
-			} else if (Exporter.EXPORTABLE_TYPE_DRAWABLE.equals(type)){
-				count += doExportDrawables(location, exportPath);
-			} else if (Exporter.EXPORTABLE_TYPE_STRING.equals(type)){
-				count += doExportStrings(location, exportPath);
+			for(String location : locations){
+				if(hasUserCancelled()){break;}
+
+				sendNotification("Starting Export", "Exporting: " + type);
+				if(Exporter.EXPORTABLE_TYPE_COLOR.equals(type)){
+					count += doExportColors(location, exportPath);
+				} else if (Exporter.EXPORTABLE_TYPE_DRAWABLE.equals(type)){
+					count += doExportDrawables(location, exportPath);
+				} else if (Exporter.EXPORTABLE_TYPE_STRING.equals(type)){
+					count += doExportStrings(location, exportPath);
+				}
 			}
 		}
 
@@ -189,7 +192,7 @@ public class ExportIntentService extends IntentService {
 			return 0;
 		}
 	}
-	
+
 	private long doExportStrings(String location, final String basePath){
 
 		final ResourceReflector reflector = new ResourceReflector(null, this);
@@ -210,7 +213,7 @@ public class ExportIntentService extends IntentService {
 			return 0;
 		}
 	}
-	
+
 	private void sendNotification(String title, String content){
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
 		.setSmallIcon(R.drawable.ic_launcher)

@@ -250,7 +250,13 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 			uB.showAboutDialogue();
 			return true;
 		} else if (R.id.menu_export == item.getItemId()){
-			startExportService(locationString2Type.get(mSpinnerLocation.getSelectedItem().toString()), EXPORTABLE_TYPES);
+			String[] locations = new String[]{
+					getString(R.string.resource_class_internal),
+					getString(R.string.resource_class_public),
+			};
+			startExportService(
+					locations, 
+					EXPORTABLE_TYPES);
 			return true;
 		}
 		return false;
@@ -356,12 +362,12 @@ public class Main extends SherlockActivity implements OnClickListener, OnActionI
 		mQuickAction.setOnActionItemClickListener(this);
 	}
 	
-	private  void startExportService(String location, String[] resourceNames){
+	private  void startExportService(String[] locations, String[] resourceNames){
 		Toast.makeText(this, R.string.toast_export_service_started, Toast.LENGTH_SHORT).show();
 		
 		Intent intent = new Intent(this, ExportIntentService.class);
 		
-		intent.putExtra(ExportIntentService.EXTRA_R_LOCATION, location);
+		intent.putExtra(ExportIntentService.EXTRA_R_LOCATIONS, locations);
 		intent.putExtra(ExportIntentService.EXTRA_RESOURCE_NAMES, resourceNames);
 		
 		startService(intent);
