@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="aws.apps.androidDrawables"
-    android:versionCode="007"
-    android:versionName="0.0.7" >
+    android:versionCode="008"
+    android:versionName="0.0.8" >
 
     <uses-sdk
         android:minSdkVersion="5"

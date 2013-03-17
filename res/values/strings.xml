@@ -19,11 +19,13 @@
 		·v0.0.4: Added other resource types.\n
 		·v0.0.5: Changed application name, resource types are now automatically enumerated.\n
 		·v0.0.6: Resource list in now alphabetically sorted\n.
-		·v0.0.7: UI refresh, fixed crashes.
+		·v0.0.7: UI refresh, fixed crashes.\n
+		·v0.0.8: Can now export resources to external Storage (more info in Notes).
 	</string>
 
 	<string name="app_notes">
 		Notes:\n
+		· Version 0.0.8 added the abilitly to export resources to the External storage. At the moment this is limited to Color, Drawable and String resources. There seems to be an issue exporting some Drawable resources (which I suspect are XML drawables), I will look into it for the next version.\n\n
 		WARNING: Internal resources (anything under \'com.android.internal.R\') are not guaranteed to be in all devices/android versions. Do not reference them directly in your application.
 	</string>
 	
